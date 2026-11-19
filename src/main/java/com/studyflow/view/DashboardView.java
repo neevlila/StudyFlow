@@ -43,8 +43,6 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     private final Span completedVal = new Span("0");
     private final Span overdueVal = new Span("0");
 
-    // Dynamic banner text
-    private final Paragraph bannerSummary = new Paragraph();
 
     // Progress components
     private final Span progressPercentText = new Span("0%");
@@ -64,12 +62,9 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         setSpacing(false);
         getStyle()
                 .set("background-color", "#0B1120")
-                .set("padding", "1rem 1.5rem")
+                .set("padding", "0.65rem clamp(1rem, 2vw, 2rem) 2rem")
                 .set("gap", "1rem")
                 .set("box-sizing", "border-box");
-
-        // 1. Welcome Header Banner
-        add(createWelcomeBanner());
 
         // 2. Summary Statistics Cards (Interactive & Responsive)
         add(createStatCardsLayout());
@@ -82,63 +77,6 @@ public class DashboardView extends VerticalLayout implements Refreshable {
 
         // Initial Data Load
         refresh();
-    }
-
-    private Component createWelcomeBanner() {
-        Div banner = new Div();
-        banner.setWidthFull();
-        banner.addClassName("sf-welcome-banner");
-
-        VerticalLayout textLayout = new VerticalLayout();
-        textLayout.setPadding(false);
-        textLayout.setSpacing(false);
-
-        Span tag = new Span("✦ Academic Command Center");
-        tag.addClassName("sf-banner-tag");
-
-        H2 greeting = new H2("Coursework & Assignment Hub");
-        greeting.getStyle()
-                .set("font-size", "1.45rem")
-                .set("font-weight", "800")
-                .set("color", "#F8FAFC")
-                .set("margin", "0 0 0.35rem 0")
-                .set("letter-spacing", "-0.02em");
-
-        bannerSummary.getStyle()
-                .set("color", "#94A3B8")
-                .set("font-size", "0.9rem")
-                .set("margin", "0");
-
-        textLayout.add(tag, greeting, bannerSummary);
-
-        HorizontalLayout actions = new HorizontalLayout();
-        actions.addClassName("sf-banner-actions");
-        actions.setSpacing(true);
-
-        Button addTaskBtn = new Button("Add Assignment", VaadinIcon.PLUS.create(), e -> {
-            TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> {
-                refresh();
-                updateParentLayout();
-            });
-            dialog.open();
-        });
-        addTaskBtn.addClassName("sf-primary-btn");
-        addTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-        Button viewTasksBtn = new Button("My Tasks", VaadinIcon.ARROW_RIGHT.create(), e -> {
-            UI.getCurrent().navigate(TasksView.class);
-        });
-        viewTasksBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        viewTasksBtn.getStyle()
-                .set("color", "#C7D2FE")
-                .set("background", "rgba(255, 255, 255, 0.08)")
-                .set("border", "1px solid #334155")
-                .set("border-radius", "8px");
-
-        actions.add(addTaskBtn, viewTasksBtn);
-
-        banner.add(textLayout, actions);
-        return banner;
     }
 
     private Component createStatCardsLayout() {
@@ -175,6 +113,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         header.add(labelSpan, iconWrapper);
 
         valueSpan.addClassName("sf-stat-value");
+        valueSpan.getStyle().set("display", "block").set("margin", "0.65rem 0 0.35rem");
 
         Paragraph sub = new Paragraph(subtext);
         sub.addClassName("sf-stat-subtext");
@@ -303,6 +242,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     }
 
     private void configureUpcomingGrid() {
+        upcomingGrid.addClassName("sf-upcoming-grid");
         upcomingGrid.setAllRowsVisible(true);
 
         // Status checkbox / quick toggle
@@ -322,7 +262,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
                     .set("border-radius", "6px")
                     .set("padding", "0.3rem");
             return checkBtn;
-        }).setHeader("Done").setWidth("65px").setFlexGrow(0);
+        }).setHeader("Done").setWidth("78px").setFlexGrow(0);
 
         // Task Title & Description + Responsive Mobile Metadata embedded row
         upcomingGrid.addComponentColumn(task -> {
@@ -464,18 +404,6 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         pendingVal.setText(String.valueOf(pending));
         completedVal.setText(String.valueOf(completed));
         overdueVal.setText(String.valueOf(overdue));
-
-        // Update motivational banner summary
-        if (total == 0) {
-            bannerSummary.setText("Welcome! Create your first assignment to begin tracking coursework.");
-        } else if (pending == 0) {
-            bannerSummary.setText("🌟 Outstanding! All your assignments are completed.");
-        } else {
-            String details = pending + " pending assignments";
-            if (overdue > 0) details += " (" + overdue + " overdue!)";
-            else if (dueToday > 0) details += " (" + dueToday + " due today)";
-            bannerSummary.setText(details + " • Stay focused and finish strong!");
-        }
 
         progressPercentText.setText(percentage + "%");
         progressRatioText.setText(completed + " of " + total + " tasks completed");
