@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * TaskService contains the core business logic of StudyFlow.
@@ -43,6 +44,33 @@ public class TaskService {
         this.objectMapper.registerModule(new JavaTimeModule());
         this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    /**
+     * Removes only the exact built-in demo assignments left by older StudyFlow versions.
+     * User-created tasks are kept untouched.
+     */
+    public String removeLegacySampleTasks(String json) {
+        if (json == null || json.isBlank() || "[]".equals(json.trim())) {
+            return "[]";
+        }
+
+        Set<String> legacyTitles = Set.of(
+                "Complete Web Technology Project",
+                "Complete DAA Assignment",
+                "Prepare Java Practical",
+                "Review Database Notes",
+                "Submit Computer Networks Lab File",
+                "Submit Software Engineering SRS Document"
+        );
+
+        try {
+            List<Task> tasks = objectMapper.readValue(json, new TypeReference<List<Task>>() {});
+            tasks.removeIf(task -> task.getTitle() != null && legacyTitles.contains(task.getTitle()));
+            return objectMapper.writeValueAsString(tasks);
+        } catch (Exception e) {
+            return json;
+        }
     }
 
     /**
