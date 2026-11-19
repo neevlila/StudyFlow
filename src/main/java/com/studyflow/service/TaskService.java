@@ -11,7 +11,6 @@ import com.studyflow.model.TaskStatus;
 import com.studyflow.repository.TaskRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
