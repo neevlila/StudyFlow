@@ -1467,8 +1467,8 @@ vaadin-app-layout::part(content) { padding-top: 0 !important; }
 
 .sf-grid-wrapper vaadin-grid::part(body-cell),
 .sf-grid-wrapper vaadin-grid::part(header-cell) { box-sizing: border-box; }
-.sf-grid-wrapper vaadin-grid::part(body-cell):first-child,
-.sf-grid-wrapper vaadin-grid::part(header-cell):first-child {
+.sf-upcoming-grid::part(body-cell):first-child,
+.sf-upcoming-grid::part(header-cell):first-child {
     padding-inline: 0.7rem !important;
 }
 
