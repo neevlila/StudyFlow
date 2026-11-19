@@ -65,10 +65,14 @@ public class TasksView extends VerticalLayout implements Refreshable {
     public TasksView(TaskService taskService) {
         this.taskService = taskService;
 
-        setSizeFull();
-        setPadding(true);
-        setSpacing(true);
-        getStyle().set("background-color", "#0B1120");
+        setWidthFull();
+        setPadding(false);
+        setSpacing(false);
+        getStyle()
+                .set("background-color", "#0B1120")
+                .set("padding", "1rem 1.5rem")
+                .set("gap", "1rem")
+                .set("box-sizing", "border-box");
 
         // 1. Quick Filter Segmented Chips (One-tap filtering)
         add(createQuickFilterChips());

@@ -59,10 +59,14 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     public DashboardView(TaskService taskService) {
         this.taskService = taskService;
 
-        setSizeFull();
-        setPadding(true);
-        setSpacing(true);
-        getStyle().set("background-color", "#0B1120");
+        setWidthFull();
+        setPadding(false);
+        setSpacing(false);
+        getStyle()
+                .set("background-color", "#0B1120")
+                .set("padding", "1rem 1.5rem")
+                .set("gap", "1rem")
+                .set("box-sizing", "border-box");
 
         // 1. Welcome Header Banner
         add(createWelcomeBanner());
@@ -172,8 +176,9 @@ public class DashboardView extends VerticalLayout implements Refreshable {
 
         valueSpan.addClassName("sf-stat-value");
 
-        Span sub = new Span(subtext);
+        Paragraph sub = new Paragraph(subtext);
         sub.addClassName("sf-stat-subtext");
+        sub.getStyle().set("margin", "0");
 
         Span actionHint = new Span(actionText);
         actionHint.addClassName("sf-stat-action-hint");

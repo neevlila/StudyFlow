@@ -43,9 +43,9 @@ public class MainLayout extends AppLayout {
     public MainLayout(TaskService taskService) {
         this.taskService = taskService;
 
-        setPrimarySection(Section.DRAWER);
-        addDrawerContent();
+        setPrimarySection(Section.NAVBAR);
         addHeaderContent();
+        addDrawerContent();
     }
 
     /**
@@ -149,8 +149,11 @@ public class MainLayout extends AppLayout {
                 LumoUtility.Padding.Vertical.SMALL,
                 LumoUtility.Padding.Horizontal.MEDIUM
         );
+        header.getStyle()
+                .set("margin", "0")
+                .set("box-sizing", "border-box");
 
-        addToNavbar(false, header);
+        addToNavbar(header);
     }
 
     private void addDrawerContent() {

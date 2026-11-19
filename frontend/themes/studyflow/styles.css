@@ -67,40 +67,70 @@ html, body {
     overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+/* ========================================================
+   Completely Hide Scrollbars (Clean, Borderless UI)
+   ======================================================== */
+* {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
 }
-::-webkit-scrollbar-track {
-    background: #0B1120;
-}
-::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
 }
 
 /* ========================================================
    AppLayout, Navbar & Drawer
    ======================================================== */
 
+vaadin-app-layout {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
 vaadin-app-layout::part(navbar) {
-    background: rgba(19, 30, 49, 0.92) !important;
+    background: rgba(19, 30, 49, 0.96) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
     border-bottom: 1px solid var(--sf-border) !important;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    margin: 0 !important;
+    padding: 0 !important;
+    top: 0 !important;
+}
+
+vaadin-app-layout::part(content) {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    background-color: var(--sf-bg) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+vaadin-app-layout::part(content)::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 vaadin-app-layout::part(drawer) {
     background: #0B1120 !important;
     border-right: 1px solid var(--sf-border) !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+vaadin-app-layout::part(drawer)::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* Sidenav item styling */
@@ -299,8 +329,11 @@ vaadin-side-nav-item[current]::part(link) {
 }
 
 .sf-stat-subtext {
+    display: block !important;
     font-size: 0.78rem;
     color: var(--sf-text-dim);
+    margin-top: 0.2rem;
+    line-height: 1.35;
 }
 
 .sf-stat-action-hint {
@@ -308,10 +341,10 @@ vaadin-side-nav-item[current]::part(link) {
     color: var(--sf-primary);
     font-weight: 600;
     margin-top: 0.5rem;
-    display: inline-flex;
+    display: flex !important;
     align-items: center;
     gap: 0.25rem;
-    opacity: 0.8;
+    opacity: 0.85;
     transition: opacity 0.15s ease;
 }
 
