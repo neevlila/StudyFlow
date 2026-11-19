@@ -1,29 +1,19 @@
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+data/
+*.db
+frontend/generated/
+.mvn/
+node_modules/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
+### IDE files ###
+.idea/
 *.iws
 *.iml
 *.ipr
+.vscode/
+.settings/
+.project
+.classpath
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
+### Logs ###
 *.log
-
-### H2 Database files ###
-data/*.trace.db

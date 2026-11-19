@@ -161,6 +161,18 @@ StudyFlow is pre-configured and 100% compatible with [Render](https://render.com
    - Render will build the container and deploy your application.
    - Once deployed, open your live Render URL (e.g. `https://studyflow.onrender.com`). All tasks you create will be safely stored in your browser's local storage!
 
+### Keeping Render Active 24/7 with cron-job.org:
+Render's free tier spins down after 15 minutes of inactivity. StudyFlow includes a dedicated, ultra-lightweight health monitoring endpoint that returns HTTP 200 in < 2ms without loading Vaadin UI sessions.
+
+To keep your free instance active 24/7:
+1. Register for free at [cron-job.org](https://cron-job.org).
+2. Click **Create Cronjob**:
+   - **Title**: `StudyFlow Ping`
+   - **URL**: `https://<your-render-app>.onrender.com/api/health` *(or `/health` or `/ping`)*
+   - **Execution Schedule**: Every 10 minutes (or every 14 minutes)
+   - **HTTP Method**: `GET`
+3. Save the job. `cron-job.org` will periodically ping the endpoint, keeping the container warm and ready for instant user access with zero cold-start delay!
+
 ---
 
 ## 9. Project Folder Structure

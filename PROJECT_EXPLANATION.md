@@ -362,3 +362,6 @@ In `TaskService.searchAndFilter(query, statusFilter, priorityFilter)`:
 1. Student assignments are never wiped when the Render container goes to sleep or restarts.
 2. Multiple users (e.g. evaluating professors and students) visiting the same Render link do not overwrite or delete each other's tasks.
 3. The application binds dynamically to Render's `$PORT` environment variable (`server.port=${PORT:8080}`) and includes memory-tuned JVM flags (`-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Xmx384m`) to fit safely within Render's 512MB RAM free tier limit.
+
+### Q23: What is the purpose of the `/api/health` endpoint and how does it work with cron-job.org?
+**Answer**: Free-tier cloud instances on Render sleep after 15 minutes without requests. `HealthController` provides a dedicated Spring `@RestController` endpoint at `/api/health`, `/health`, and `/ping` returning HTTP 200 OK with system status in < 2ms. By configuring a free scheduler like `cron-job.org` to send a GET request every 10–14 minutes, the Render instance stays warm and active 24/7 without cold-start latency, without creating heavy Vaadin UI sessions.
