@@ -1052,3 +1052,392 @@ vaadin-side-nav-item::part(link):focus-visible,
         transition-duration: 0.01ms !important;
     }
 }
+
+
+/* ========================================================
+   Responsive layout correction
+   Laptop, tablet and real mobile viewport support
+   ======================================================== */
+
+/* Prevent Vaadin flex children and grids from forcing page overflow. */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+vaadin-app-layout {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+vaadin-app-layout::part(content) {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+vaadin-app-layout::part(navbar) {
+    width: 100%;
+    min-width: 0;
+}
+
+.sf-header-layout {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    gap: clamp(0.4rem, 1vw, 0.9rem);
+}
+
+.sf-view-title {
+    min-width: 0;
+    flex: 0 1 auto;
+    white-space: nowrap;
+}
+
+.sf-header-date {
+    white-space: nowrap;
+}
+
+.sf-welcome-banner,
+.sf-card,
+.sf-toolbar,
+.sf-grid-wrapper,
+.sf-stats-grid {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.sf-welcome-banner > * {
+    min-width: 0;
+}
+
+.sf-welcome-banner h2 {
+    overflow-wrap: anywhere;
+}
+
+.sf-stat-card {
+    min-width: 0;
+}
+
+.sf-stat-label,
+.sf-stat-subtext {
+    overflow-wrap: anywhere;
+}
+
+/* Laptop and compact desktop: avoid cramped four-column cards. */
+@media (min-width: 769px) and (max-width: 1180px) {
+    .sf-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.9rem !important;
+    }
+
+    .sf-stat-card {
+        min-height: 136px;
+    }
+
+    .sf-welcome-banner {
+        align-items: flex-start !important;
+    }
+
+    .sf-toolbar {
+        display: flex;
+        flex-wrap: wrap !important;
+    }
+
+    .sf-search-field {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+    }
+
+    .sf-filter-group {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .sf-toolbar-add-btn {
+        flex: 0 0 auto;
+    }
+
+    .sf-grid-wrapper {
+        overflow-x: auto !important;
+    }
+
+    vaadin-grid {
+        min-width: 650px;
+    }
+}
+
+/* Tablet and phones. */
+@media (max-width: 768px) {
+    .sf-header-layout {
+        padding-inline: 0.35rem !important;
+        gap: 0.35rem !important;
+    }
+
+    .sf-view-title {
+        flex: 1 1 auto;
+        max-width: none !important;
+        font-size: 1rem !important;
+    }
+
+    .sf-header-new-task-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        font-size: 0.78rem !important;
+    }
+
+    .sf-welcome-banner {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+        padding: 1.15rem !important;
+    }
+
+    .sf-welcome-banner > * {
+        width: 100%;
+    }
+
+    .sf-banner-actions {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 0.55rem !important;
+    }
+
+    .sf-banner-actions > * {
+        flex: 1 1 140px;
+        min-width: 0;
+    }
+
+    .sf-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.7rem !important;
+    }
+
+    .sf-stat-card {
+        min-height: 128px;
+        padding: 0.9rem !important;
+    }
+
+    .sf-stat-card .sf-stat-subtext {
+        line-height: 1.35;
+    }
+
+    .sf-card {
+        padding: 1rem !important;
+    }
+
+    .sf-card > vaadin-horizontal-layout {
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+
+    .sf-toolbar {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 0.85rem !important;
+        gap: 0.65rem !important;
+    }
+
+    .sf-toolbar > * {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+    }
+
+    .sf-search-field {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    .sf-filter-group {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        gap: 0.5rem !important;
+    }
+
+    .sf-filter-group > * {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+    }
+
+    .sf-toolbar-add-btn {
+        width: 100% !important;
+    }
+
+    .sf-filter-chips-container {
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        scrollbar-width: thin;
+    }
+
+    .sf-filter-chip {
+        flex: 0 0 auto;
+    }
+
+    .sf-grid-wrapper {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-height: 0;
+        overflow-x: auto !important;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    vaadin-grid {
+        width: 100%;
+        min-width: 0;
+        height: 390px !important;
+    }
+
+    vaadin-grid::part(header-cell),
+    vaadin-grid::part(body-cell) {
+        padding: 0.65rem 0.55rem !important;
+    }
+
+    .sf-mobile-meta {
+        display: flex !important;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .sf-completed-badge {
+        width: auto !important;
+        max-width: 100%;
+        margin: 0 !important;
+    }
+
+    .sf-progress-track {
+        width: 100%;
+    }
+}
+
+/* Standard phones. Keep controls readable and prevent squeezed text. */
+@media (max-width: 520px) {
+    .sf-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.55rem !important;
+    }
+
+    .sf-stat-card {
+        min-height: 122px;
+        padding: 0.8rem !important;
+    }
+
+    .sf-stat-icon-wrapper {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .sf-stat-label {
+        font-size: 0.68rem !important;
+        letter-spacing: 0.035em;
+    }
+
+    .sf-stat-value {
+        font-size: 1.65rem !important;
+    }
+
+    .sf-stat-subtext {
+        font-size: 0.68rem !important;
+    }
+
+    .sf-stat-action-hint {
+        display: none !important;
+    }
+
+    .sf-banner-actions {
+        flex-direction: column !important;
+    }
+
+    .sf-banner-actions > * {
+        flex: 1 1 auto;
+        width: 100% !important;
+    }
+
+    .sf-filter-group {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    }
+
+    .sf-filter-group > * {
+        width: 100% !important;
+    }
+
+    .sf-header-new-task-btn {
+        height: 34px !important;
+        padding-inline: 0.55rem !important;
+        font-size: 0.72rem !important;
+    }
+
+    .sf-header-new-task-btn vaadin-icon {
+        margin-inline-end: 0.2rem;
+    }
+
+    .sf-view-title {
+        font-size: 0.95rem !important;
+    }
+
+    .sf-card {
+        padding: 0.85rem !important;
+        border-radius: 14px;
+    }
+
+    .sf-card h3 {
+        font-size: 0.95rem !important;
+    }
+
+    .sf-grid-wrapper {
+        border-radius: 12px;
+    }
+
+    vaadin-grid {
+        height: 360px !important;
+    }
+}
+
+/* Very narrow phones: use one stat card per row instead of clipping labels. */
+@media (max-width: 360px) {
+    .sf-stats-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .sf-stat-card {
+        min-height: 108px;
+    }
+
+    .sf-filter-group {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .sf-filter-group > *:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .sf-view-title {
+        max-width: 110px !important;
+    }
+}
+
+/* Landscape phones and small laptop heights should still scroll naturally. */
+@media (max-height: 560px) and (max-width: 900px) {
+    vaadin-grid {
+        height: 300px !important;
+    }
+}
