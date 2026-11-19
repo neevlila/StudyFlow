@@ -12,8 +12,6 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -59,14 +57,17 @@ public class MainLayout extends AppLayout {
             attachEvent.getUI().getPage().executeJs(
                     "return window.localStorage.getItem('studyflow_tasks') || '';"
             ).then(String.class, json -> {
-                if (json != null && !json.trim().isEmpty() && !json.trim().equals("[]")) {
-                    taskService.loadSessionTasksFromJson(json);
-                } else {
-                    // First-time visit: seed initial sample tasks and save to browser LocalStorage
-                    String initialJson = taskService.exportSessionTasksToJson();
+                // Remove only the exact demo assignments created by older versions.
+                // Any tasks created by the user are preserved.
+                String cleanedJson = taskService.removeLegacySampleTasks(json);
+                if (!cleanedJson.equals(json)) {
                     attachEvent.getUI().getPage().executeJs(
-                            "window.localStorage.setItem('studyflow_tasks', $0);", initialJson
+                            "window.localStorage.setItem('studyflow_tasks', $0);", cleanedJson
                     );
+                }
+
+                if (cleanedJson != null && !cleanedJson.trim().isEmpty() && !cleanedJson.trim().equals("[]")) {
+                    taskService.loadSessionTasksFromJson(cleanedJson);
                 }
                 taskService.setSessionLoaded(true);
                 updateNavBadges();
@@ -158,6 +159,7 @@ public class MainLayout extends AppLayout {
         HorizontalLayout brandLayout = new HorizontalLayout();
         brandLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         brandLayout.setSpacing(true);
+        brandLayout.addClassName("sf-sidebar-brand");
         brandLayout.getStyle().set("padding", "1.25rem 1.25rem 0.5rem 1.25rem");
 
         Span iconSpan = new Span(VaadinIcon.ACADEMY_CAP.create());
@@ -185,6 +187,7 @@ public class MainLayout extends AppLayout {
         brandLayout.add(iconSpan, appName, versionBadge);
 
         Paragraph tagline = new Paragraph("Student Planner & Coursework Tracker");
+        tagline.addClassName("sf-sidebar-tagline");
         tagline.getStyle()
                 .set("color", "#64748B")
                 .set("font-size", "0.75rem")
@@ -204,51 +207,37 @@ public class MainLayout extends AppLayout {
         completedLink.setSuffixComponent(completedBadge);
 
         nav.addItem(dashboardLink, tasksLink, completedLink);
+        nav.addClassName("sf-sidebar-nav");
         nav.getStyle().set("padding", "0 0.5rem");
 
-        // Footer in drawer with Storage Engine indicator and Demo Data Reset
+        // Quiet footer: keep storage status, remove demo-data controls.
         VerticalLayout drawerFooter = new VerticalLayout();
+        drawerFooter.addClassName("sf-sidebar-footer");
         drawerFooter.setSpacing(true);
         drawerFooter.getStyle()
                 .set("padding", "1rem 1.25rem")
                 .set("margin-top", "auto")
-                .set("border-top", "1px solid #1E293B");
+                .set("border-top", "1px solid #263246");
 
         HorizontalLayout dbStatus = new HorizontalLayout();
+        dbStatus.addClassName("sf-sidebar-status");
         dbStatus.setAlignItems(FlexComponent.Alignment.CENTER);
         dbStatus.setSpacing(true);
 
         Span statusDot = new Span();
         statusDot.addClassName("sf-status-dot-active");
 
-        Span statusText = new Span("LocalStorage Sync");
+        Span statusText = new Span("Your tasks are saved locally");
         statusText.getStyle()
                 .set("color", "#94A3B8")
-                .set("font-size", "0.75rem")
-                .set("font-weight", "600");
+                .set("font-size", "0.72rem")
+                .set("font-weight", "500");
 
         dbStatus.add(statusDot, statusText);
-
-        Button resetBtn = new Button("Reset Sample Tasks", VaadinIcon.REFRESH.create(), e -> {
-            taskService.resetToSampleData();
-            updateNavBadges();
-            if (getContent() instanceof Refreshable r) {
-                r.refresh();
-            }
-            Notification n = Notification.show("Sample coursework data restored!", 2500, Notification.Position.BOTTOM_START);
-            n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-        });
-        resetBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-        resetBtn.setWidthFull();
-        resetBtn.getStyle()
-                .set("color", "#64748B")
-                .set("font-size", "0.72rem")
-                .set("justify-content", "flex-start")
-                .set("padding", "0");
-
-        drawerFooter.add(dbStatus, resetBtn);
+        drawerFooter.add(dbStatus);
 
         VerticalLayout drawerLayout = new VerticalLayout(brandLayout, tagline, nav, drawerFooter);
+        drawerLayout.addClassName("sf-sidebar-layout");
         drawerLayout.setSizeFull();
         drawerLayout.setPadding(false);
         drawerLayout.setSpacing(false);

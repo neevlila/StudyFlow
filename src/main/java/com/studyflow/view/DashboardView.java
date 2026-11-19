@@ -60,9 +60,12 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         this.taskService = taskService;
 
         setSizeFull();
-        setPadding(true);
+        setPadding(false);
         setSpacing(true);
-        getStyle().set("background-color", "#0B1120");
+        getStyle()
+                .set("background-color", "#0B1120")
+                .set("padding", "0.65rem clamp(1rem, 2vw, 2rem) 2rem")
+                .set("box-sizing", "border-box");
 
         // 1. Welcome Header Banner
         add(createWelcomeBanner());
@@ -89,9 +92,6 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         textLayout.setPadding(false);
         textLayout.setSpacing(false);
 
-        Span tag = new Span("✦ Academic Command Center");
-        tag.addClassName("sf-banner-tag");
-
         H2 greeting = new H2("Coursework & Assignment Hub");
         greeting.getStyle()
                 .set("font-size", "1.45rem")
@@ -105,7 +105,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
                 .set("font-size", "0.9rem")
                 .set("margin", "0");
 
-        textLayout.add(tag, greeting, bannerSummary);
+        textLayout.add(greeting, bannerSummary);
 
         HorizontalLayout actions = new HorizontalLayout();
         actions.addClassName("sf-banner-actions");
@@ -171,6 +171,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         header.add(labelSpan, iconWrapper);
 
         valueSpan.addClassName("sf-stat-value");
+        valueSpan.getStyle().set("display", "block").set("margin", "0.65rem 0 0.35rem");
 
         Span sub = new Span(subtext);
         sub.addClassName("sf-stat-subtext");
@@ -298,6 +299,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     }
 
     private void configureUpcomingGrid() {
+        upcomingGrid.addClassName("sf-upcoming-grid");
         upcomingGrid.setAllRowsVisible(true);
 
         // Status checkbox / quick toggle
@@ -317,7 +319,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
                     .set("border-radius", "6px")
                     .set("padding", "0.3rem");
             return checkBtn;
-        }).setHeader("Done").setWidth("65px").setFlexGrow(0);
+        }).setHeader("Done").setWidth("78px").setFlexGrow(0);
 
         // Task Title & Description + Responsive Mobile Metadata embedded row
         upcomingGrid.addComponentColumn(task -> {

@@ -11,14 +11,13 @@ import com.studyflow.model.TaskStatus;
 import com.studyflow.repository.TaskRepository;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinSession;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * TaskService contains the core business logic of StudyFlow.
@@ -46,62 +45,30 @@ public class TaskService {
     }
 
     /**
-     * Seeds initial sample academic tasks into H2 if the repository is empty.
+     * Removes only the exact built-in demo assignments left by older StudyFlow versions.
+     * User-created tasks are kept untouched.
      */
-    @PostConstruct
-    public void initSampleData() {
-        if (taskRepository.count() == 0) {
-            List<Task> samples = createDefaultSampleTasks();
-            for (Task t : samples) {
-                taskRepository.save(t);
-            }
+    public String removeLegacySampleTasks(String json) {
+        if (json == null || json.isBlank() || "[]".equals(json.trim())) {
+            return "[]";
         }
-    }
 
-    /**
-     * Creates default academic coursework assignments for new users.
-     */
-    public List<Task> createDefaultSampleTasks() {
-        LocalDate today = LocalDate.now();
-        List<Task> list = new ArrayList<>();
+        Set<String> legacyTitles = Set.of(
+                "Complete Web Technology Project",
+                "Complete DAA Assignment",
+                "Prepare Java Practical",
+                "Review Database Notes",
+                "Submit Computer Networks Lab File",
+                "Submit Software Engineering SRS Document"
+        );
 
-        // 1. High Priority - Web Tech Project due today
-        Task t1 = new Task(1L, "Complete Web Technology Project", "Web Technology",
-                "Finalize dashboard UI components, responsive layout, and test all CRUD flows.",
-                today, Priority.HIGH, TaskStatus.PENDING, today.atStartOfDay());
-        list.add(t1);
-
-        // 2. High Priority - DAA Assignment due in 2 days
-        Task t2 = new Task(2L, "Complete DAA Assignment", "DAA",
-                "Implement Dijkstra's Algorithm and write the time complexity analysis report.",
-                today.plusDays(2), Priority.HIGH, TaskStatus.PENDING, today.atStartOfDay());
-        list.add(t2);
-
-        // 3. Medium Priority - Java Practical prep due tomorrow
-        Task t3 = new Task(3L, "Prepare Java Practical", "Java",
-                "Review OOP concepts, collections, generics, and sample viva questions.",
-                today.plusDays(1), Priority.MEDIUM, TaskStatus.PENDING, today.atStartOfDay());
-        list.add(t3);
-
-        // 4. Low Priority - DBMS Notes review due in 5 days
-        Task t4 = new Task(4L, "Review Database Notes", "DBMS",
-                "Study B-Trees, transaction isolation levels, and ACID properties.",
-                today.plusDays(5), Priority.LOW, TaskStatus.PENDING, today.atStartOfDay());
-        list.add(t4);
-
-        // 5. Overdue sample task to demonstrate overdue highlighting
-        Task t5 = new Task(5L, "Submit Computer Networks Lab File", "Networks",
-                "Compile Wireshark packet capture screenshots and subnetting calculations.",
-                today.minusDays(2), Priority.MEDIUM, TaskStatus.PENDING, today.minusDays(5).atStartOfDay());
-        list.add(t5);
-
-        // 6. Completed sample task to demonstrate completion metrics
-        Task t6 = new Task(6L, "Submit Software Engineering SRS Document", "Software Engg",
-                "Requirements specification document uploaded to university portal.",
-                today.minusDays(4), Priority.LOW, TaskStatus.COMPLETED, today.minusDays(7).atStartOfDay());
-        list.add(t6);
-
-        return list;
+        try {
+            List<Task> tasks = objectMapper.readValue(json, new TypeReference<List<Task>>() {});
+            tasks.removeIf(task -> task.getTitle() != null && legacyTitles.contains(task.getTitle()));
+            return objectMapper.writeValueAsString(tasks);
+        } catch (Exception e) {
+            return json;
+        }
     }
 
     /**
@@ -114,7 +81,7 @@ public class TaskService {
             @SuppressWarnings("unchecked")
             List<Task> tasks = (List<Task>) session.getAttribute(SESSION_TASKS_ATTR);
             if (tasks == null) {
-                tasks = new ArrayList<>(createDefaultSampleTasks());
+                tasks = new ArrayList<>();
                 session.setAttribute(SESSION_TASKS_ATTR, tasks);
             }
             return tasks;
@@ -495,24 +462,4 @@ public class TaskService {
         return filtered;
     }
 
-    /**
-     * Resets tasks to default sample tasks and syncs with browser LocalStorage.
-     */
-    public void resetToSampleData() {
-        List<Task> sessionTasks = getSessionTasks();
-        if (sessionTasks != null) {
-            sessionTasks.clear();
-            sessionTasks.addAll(createDefaultSampleTasks());
-            taskRepository.deleteAll();
-            for (Task t : sessionTasks) {
-                try {
-                    taskRepository.save(t);
-                } catch (Exception ignored) {}
-            }
-            syncToLocalStorage();
-        } else {
-            taskRepository.deleteAll();
-            initSampleData();
-        }
-    }
 }
