@@ -6,12 +6,12 @@ import com.studyflow.model.Priority;
 import com.studyflow.model.Task;
 import com.studyflow.model.TaskStatus;
 import com.studyflow.service.TaskService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -26,12 +26,13 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Tasks Management View.
- * Provides live search, status and priority filtering, full CRUD actions,
- * status toggling, and clean responsive table display.
+ * Provides instant segmented quick filter chips, live search, course & priority filtering,
+ * full CRUD actions, status toggling, and fully responsive layout for phones, tablets, and desktop.
  */
 @Route(value = "tasks", layout = MainLayout.class)
 @PageTitle("My Tasks - StudyFlow")
@@ -39,10 +40,19 @@ public class TasksView extends VerticalLayout implements Refreshable {
 
     private final TaskService taskService;
 
+    // Quick filter chips
+    private String activeQuickFilter = "ALL";
+    private final Div chipsContainer = new Div();
+    private final Div chipAll = new Div();
+    private final Div chipPending = new Div();
+    private final Div chipToday = new Div();
+    private final Div chipOverdue = new Div();
+    private final Div chipCompleted = new Div();
+
     // Filters
     private final TextField searchField = new TextField();
-    private final ComboBox<String> statusFilter = new ComboBox<>();
     private final ComboBox<String> priorityFilter = new ComboBox<>();
+    private final ComboBox<String> subjectFilter = new ComboBox<>();
     private final Button resetFilterBtn = new Button(VaadinIcon.CLOSE_SMALL.create());
 
     // Task Grid and Empty State
@@ -50,6 +60,7 @@ public class TasksView extends VerticalLayout implements Refreshable {
     private final VerticalLayout emptyStateLayout = new VerticalLayout();
     private final Span emptyStateTitle = new Span();
     private final Paragraph emptyStateDesc = new Paragraph();
+    private final Button emptyStateActionBtn = new Button();
 
     public TasksView(TaskService taskService) {
         this.taskService = taskService;
@@ -57,28 +68,94 @@ public class TasksView extends VerticalLayout implements Refreshable {
         setSizeFull();
         setPadding(true);
         setSpacing(true);
-        getStyle().set("background-color", "#0F172A");
+        getStyle().set("background-color", "#0B1120");
 
-        // 1. Toolbar (Search, Filter, New Task button)
+        // 1. Quick Filter Segmented Chips (One-tap filtering)
+        add(createQuickFilterChips());
+
+        // 2. Toolbar (Search, Filter, New Task button)
         add(createToolbar());
 
-        // 2. Table Grid with mobile-responsive wrapper
+        // 3. Table Grid with mobile-responsive wrapper
         configureGrid();
         Div gridWrapper = new Div(taskGrid);
         gridWrapper.addClassName("sf-grid-wrapper");
         gridWrapper.setSizeFull();
 
-        Span swipeHint = new Span("← Swipe table to view all columns →");
-        swipeHint.addClassName("sf-swipe-hint");
+        add(gridWrapper);
 
-        add(swipeHint, gridWrapper);
-
-        // 3. Empty State Layout
+        // 4. Empty State Layout
         configureEmptyState();
         add(emptyStateLayout);
 
         // Initial Data Load
         refresh();
+    }
+
+    private Component createQuickFilterChips() {
+        chipsContainer.addClassName("sf-filter-chips-container");
+
+        setupChip(chipAll, "ALL", "All Tasks", 0);
+        setupChip(chipPending, "PENDING", "Pending", 0);
+        setupChip(chipToday, "TODAY", "Due Today", 0);
+        setupChip(chipOverdue, "OVERDUE", "Overdue", 0);
+        setupChip(chipCompleted, "COMPLETED", "Completed", 0);
+
+        chipsContainer.add(chipAll, chipPending, chipToday, chipOverdue, chipCompleted);
+        return chipsContainer;
+    }
+
+    private void setupChip(Div chip, String filterCode, String label, int count) {
+        chip.addClassName("sf-filter-chip");
+        if (filterCode.equals(activeQuickFilter)) {
+            chip.addClassName("active");
+        }
+
+        chip.addClickListener(e -> {
+            activeQuickFilter = filterCode;
+            updateChipsActiveState();
+            applyFilters();
+        });
+
+        renderChipContent(chip, label, count);
+    }
+
+    private void renderChipContent(Div chip, String label, int count) {
+        chip.removeAll();
+        Span labelSpan = new Span(label);
+        Span countSpan = new Span(String.valueOf(count));
+        countSpan.addClassName("sf-chip-count");
+        chip.add(labelSpan, countSpan);
+    }
+
+    private void updateChipsActiveState() {
+        chipAll.removeClassName("active");
+        chipPending.removeClassName("active");
+        chipToday.removeClassName("active");
+        chipOverdue.removeClassName("active");
+        chipCompleted.removeClassName("active");
+
+        switch (activeQuickFilter) {
+            case "PENDING" -> chipPending.addClassName("active");
+            case "TODAY" -> chipToday.addClassName("active");
+            case "OVERDUE" -> chipOverdue.addClassName("active");
+            case "COMPLETED" -> chipCompleted.addClassName("active");
+            default -> chipAll.addClassName("active");
+        }
+    }
+
+    private void updateChipsCounters() {
+        int total = taskService.getTotalCount();
+        int pending = taskService.getPendingCount();
+        int today = taskService.getDueTodayCount();
+        int overdue = taskService.getOverdueCount();
+        int completed = taskService.getCompletedCount();
+
+        renderChipContent(chipAll, "All Tasks", total);
+        renderChipContent(chipPending, "Pending", pending);
+        renderChipContent(chipToday, "Due Today", today);
+        renderChipContent(chipOverdue, "Overdue", overdue);
+        renderChipContent(chipCompleted, "Completed", completed);
     }
 
     private HorizontalLayout createToolbar() {
@@ -87,27 +164,21 @@ public class TasksView extends VerticalLayout implements Refreshable {
         toolbar.addClassName("sf-toolbar");
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.setSpacing(true);
-        toolbar.getStyle()
-                .set("background", "#1E293B")
-                .set("padding", "0.85rem 1.25rem")
-                .set("border-radius", "12px")
-                .set("border", "1px solid #334155");
 
         // Search Field
         searchField.addClassName("sf-search-field");
-        searchField.setPlaceholder("Search assignments or subjects...");
+        searchField.setPlaceholder("Search assignments or topics...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
-        searchField.setValueChangeTimeout(250);
+        searchField.setValueChangeTimeout(200);
         searchField.addValueChangeListener(e -> applyFilters());
 
-        // Status Filter
-        statusFilter.addClassName("sf-filter-select");
-        statusFilter.setPlaceholder("Status");
-        statusFilter.setItems("All Statuses", "Pending", "Completed");
-        statusFilter.setValue("All Statuses");
-        statusFilter.addValueChangeListener(e -> applyFilters());
+        // Subject Filter
+        subjectFilter.addClassName("sf-filter-select");
+        subjectFilter.setPlaceholder("Subject");
+        subjectFilter.setClearButtonVisible(true);
+        subjectFilter.addValueChangeListener(e -> applyFilters());
 
         // Priority Filter
         priorityFilter.addClassName("sf-filter-select");
@@ -121,20 +192,21 @@ public class TasksView extends VerticalLayout implements Refreshable {
         resetFilterBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         resetFilterBtn.addClickListener(e -> resetFilters());
 
-        HorizontalLayout filterGroup = new HorizontalLayout(statusFilter, priorityFilter, resetFilterBtn);
+        HorizontalLayout filterGroup = new HorizontalLayout(subjectFilter, priorityFilter, resetFilterBtn);
         filterGroup.addClassName("sf-filter-group");
         filterGroup.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 
         // Add Task Action
         Button addTaskBtn = new Button("New Task", VaadinIcon.PLUS.create(), e -> {
-            TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
+            TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> {
+                refresh();
+                updateParentLayout();
+            });
             dialog.open();
         });
-        addTaskBtn.addClassName("sf-toolbar-add-btn");
+        addTaskBtn.addClassNames("sf-toolbar-add-btn", "sf-primary-btn");
         addTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addTaskBtn.getStyle()
-                .set("background", "#6366F1")
-                .set("margin-left", "auto");
+        addTaskBtn.getStyle().set("margin-left", "auto");
 
         toolbar.add(searchField, filterGroup, addTaskBtn);
         return toolbar;
@@ -159,45 +231,64 @@ public class TasksView extends VerticalLayout implements Refreshable {
             toggleBtn.addClickListener(e -> {
                 taskService.toggleStatus(task.getId());
                 refresh();
-                String msg = isCompleted ? "Task marked as Pending" : "Task marked as Completed!";
+                updateParentLayout();
+                String msg = isCompleted ? "Task moved to Pending." : "Task marked as Completed!";
                 Notification n = Notification.show(msg, 2000, Notification.Position.TOP_END);
                 n.addThemeVariants(isCompleted ? NotificationVariant.LUMO_PRIMARY : NotificationVariant.LUMO_SUCCESS);
             });
 
             return toggleBtn;
-        }).setHeader("Status").setWidth("75px").setFlexGrow(0);
+        }).setHeader("Status").setWidth("65px").setFlexGrow(0);
 
-        // 2. Title & Description
+        // 2. Title & Description + Mobile Metadata Embedded Row
         taskGrid.addComponentColumn(task -> {
             VerticalLayout vl = new VerticalLayout();
             vl.setPadding(false);
             vl.setSpacing(false);
 
             Span title = new Span(task.getTitle());
-            title.getStyle().set("font-weight", "600").set("color", "#F8FAFC");
+            title.getStyle().set("font-weight", "600").set("color", "#F8FAFC").set("font-size", "0.92rem");
 
             if (task.getStatus() == TaskStatus.COMPLETED) {
                 title.getStyle().set("text-decoration", "line-through").set("color", "#64748B");
             }
 
+            vl.add(title);
+
             if (task.getDescription() != null && !task.getDescription().isEmpty()) {
                 Span desc = new Span(task.getDescription());
-                desc.getStyle().set("font-size", "0.75rem").set("color", "#94A3B8");
-                vl.add(title, desc);
-            } else {
-                vl.add(title);
+                desc.getStyle().set("font-size", "0.76rem").set("color", "#94A3B8").set("margin-top", "0.15rem");
+                vl.add(desc);
             }
-            return vl;
-        }).setHeader("Assignment Title").setFlexGrow(3);
 
-        // 3. Subject
+            // Embedded metadata row for mobile screen layout
+            HorizontalLayout mobileMeta = new HorizontalLayout();
+            mobileMeta.addClassName("sf-mobile-meta");
+            mobileMeta.setSpacing(true);
+
+            Span subjectBadge = new Span(task.getSubject());
+            subjectBadge.addClassName("sf-badge-subject");
+
+            Span dateBadge = createDateBadge(task);
+
+            Priority p = task.getPriority() != null ? task.getPriority() : Priority.MEDIUM;
+            Span priorityBadge = new Span(p.getDisplayName());
+            priorityBadge.addClassNames("sf-badge", "sf-badge-" + p.name().toLowerCase());
+
+            mobileMeta.add(subjectBadge, dateBadge, priorityBadge);
+            vl.add(mobileMeta);
+
+            return vl;
+        }).setHeader("Assignment").setFlexGrow(3);
+
+        // 3. Subject (Desktop column)
         taskGrid.addComponentColumn(task -> {
             Span badge = new Span(task.getSubject());
             badge.addClassName("sf-badge-subject");
             return badge;
-        }).setHeader("Subject").setWidth("140px").setFlexGrow(0);
+        }).setHeader("Subject").setWidth("140px").setFlexGrow(0).addClassNames("sf-col-desktop");
 
-        // 4. Due Date with Deadline indicator
+        // 4. Due Date with Deadline indicator (Desktop column)
         taskGrid.addComponentColumn(task -> {
             HorizontalLayout hl = new HorizontalLayout();
             hl.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -209,18 +300,9 @@ public class TasksView extends VerticalLayout implements Refreshable {
             dateSpan.getStyle().set("font-size", "0.85rem");
 
             if (task.getStatus() == TaskStatus.PENDING) {
-                if (task.isOverdue()) {
-                    Span badge = new Span("OVERDUE");
-                    badge.addClassNames("sf-badge", "sf-badge-overdue");
-                    hl.add(dateSpan, badge);
-                } else if (task.isDueToday()) {
-                    Span badge = new Span("TODAY");
-                    badge.addClassNames("sf-badge", "sf-badge-high");
-                    hl.add(dateSpan, badge);
-                } else if (task.isDueSoon()) {
-                    Span badge = new Span("SOON");
-                    badge.addClassNames("sf-badge", "sf-badge-medium");
-                    hl.add(dateSpan, badge);
+                Span urgencyBadge = createUrgencyBadge(task);
+                if (urgencyBadge != null) {
+                    hl.add(dateSpan, urgencyBadge);
                 } else {
                     hl.add(dateSpan);
                 }
@@ -228,16 +310,16 @@ public class TasksView extends VerticalLayout implements Refreshable {
                 hl.add(dateSpan);
             }
             return hl;
-        }).setHeader("Due Date").setWidth("210px").setFlexGrow(1);
+        }).setHeader("Due Date").setWidth("210px").setFlexGrow(1).addClassNames("sf-col-desktop");
 
-        // 5. Priority Badge
+        // 5. Priority Badge (Desktop column)
         taskGrid.addComponentColumn(task -> {
             Priority p = task.getPriority() != null ? task.getPriority() : Priority.MEDIUM;
             Span badge = new Span(p.getDisplayName());
             badge.addClassName("sf-badge");
             badge.addClassName("sf-badge-" + p.name().toLowerCase());
             return badge;
-        }).setHeader("Priority").setWidth("110px").setFlexGrow(0);
+        }).setHeader("Priority").setWidth("110px").setFlexGrow(0).addClassNames("sf-col-desktop");
 
         // 6. Action Buttons (Edit & Delete)
         taskGrid.addComponentColumn(task -> {
@@ -246,7 +328,10 @@ public class TasksView extends VerticalLayout implements Refreshable {
 
             // Edit Button
             Button editBtn = new Button(VaadinIcon.EDIT.create(), e -> {
-                TaskFormDialog dialog = new TaskFormDialog(taskService, task, savedTask -> refresh());
+                TaskFormDialog dialog = new TaskFormDialog(taskService, task, savedTask -> {
+                    refresh();
+                    updateParentLayout();
+                });
                 dialog.open();
             });
             editBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
@@ -258,6 +343,7 @@ public class TasksView extends VerticalLayout implements Refreshable {
                 ConfirmDeleteDialog dialog = new ConfirmDeleteDialog(task, () -> {
                     taskService.deleteTask(task.getId());
                     refresh();
+                    updateParentLayout();
                     Notification n = Notification.show("Task deleted.", 2000, Notification.Position.TOP_END);
                     n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
                 });
@@ -268,7 +354,47 @@ public class TasksView extends VerticalLayout implements Refreshable {
 
             actions.add(editBtn, deleteBtn);
             return actions;
-        }).setHeader("Actions").setWidth("120px").setFlexGrow(0);
+        }).setHeader("Actions").setWidth("110px").setFlexGrow(0);
+    }
+
+    private Span createDateBadge(Task task) {
+        String formattedDate = task.getDueDate() != null ?
+                task.getDueDate().format(DateTimeFormatter.ofPattern("MMM d")) : "No date";
+
+        Span badge = new Span(formattedDate);
+        if (task.getStatus() == TaskStatus.COMPLETED) {
+            badge.addClassNames("sf-badge", "sf-badge-completed");
+            badge.setText("DONE");
+        } else if (task.isOverdue()) {
+            badge.setText("OVERDUE (" + formattedDate + ")");
+            badge.addClassNames("sf-badge", "sf-badge-overdue");
+        } else if (task.isDueToday()) {
+            badge.setText("TODAY");
+            badge.addClassNames("sf-badge", "sf-badge-today");
+        } else if (task.isDueSoon()) {
+            badge.setText("SOON (" + formattedDate + ")");
+            badge.addClassNames("sf-badge", "sf-badge-soon");
+        } else {
+            badge.addClassName("sf-badge-subject");
+        }
+        return badge;
+    }
+
+    private Span createUrgencyBadge(Task task) {
+        if (task.isOverdue()) {
+            Span overdueBadge = new Span("OVERDUE");
+            overdueBadge.addClassNames("sf-badge", "sf-badge-overdue");
+            return overdueBadge;
+        } else if (task.isDueToday()) {
+            Span todayBadge = new Span("TODAY");
+            todayBadge.addClassNames("sf-badge", "sf-badge-today");
+            return todayBadge;
+        } else if (task.isDueSoon()) {
+            Span soonBadge = new Span("SOON");
+            soonBadge.addClassNames("sf-badge", "sf-badge-soon");
+            return soonBadge;
+        }
+        return null;
     }
 
     private void configureEmptyState() {
@@ -279,46 +405,49 @@ public class TasksView extends VerticalLayout implements Refreshable {
 
         Span icon = new Span(VaadinIcon.INBOX.create());
         icon.getStyle()
-                .set("font-size", "3rem")
+                .set("font-size", "3.2rem")
                 .set("color", "#475569")
-                .set("margin-bottom", "1rem");
+                .set("margin-bottom", "0.75rem");
 
         emptyStateTitle.getStyle()
                 .set("font-size", "1.25rem")
-                .set("font-weight", "600")
+                .set("font-weight", "700")
                 .set("color", "#F8FAFC");
 
         emptyStateDesc.getStyle()
                 .set("color", "#94A3B8")
                 .set("font-size", "0.9rem")
-                .set("margin-top", "0.25rem");
+                .set("margin-top", "0.25rem")
+                .set("text-align", "center")
+                .set("max-width", "400px");
 
-        Button emptyActionBtn = new Button("Add First Task", VaadinIcon.PLUS.create(), e -> {
-            TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
-            dialog.open();
-        });
-        emptyActionBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        emptyActionBtn.getStyle().set("background", "#6366F1").set("margin-top", "1rem");
+        emptyStateActionBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        emptyStateActionBtn.addClassName("sf-primary-btn");
+        emptyStateActionBtn.getStyle().set("margin-top", "1rem");
 
-        emptyStateLayout.add(icon, emptyStateTitle, emptyStateDesc, emptyActionBtn);
+        emptyStateLayout.add(icon, emptyStateTitle, emptyStateDesc, emptyStateActionBtn);
     }
 
     private void applyFilters() {
         String query = searchField.getValue();
-        String status = statusFilter.getValue();
         String priority = priorityFilter.getValue();
-
-        // Convert UI labels to filter codes
-        String statusCode = "ALL";
-        if ("Pending".equalsIgnoreCase(status)) statusCode = "PENDING";
-        if ("Completed".equalsIgnoreCase(status)) statusCode = "COMPLETED";
+        String selectedSubject = subjectFilter.getValue();
 
         String priorityCode = "ALL";
         if ("High".equalsIgnoreCase(priority)) priorityCode = "HIGH";
         if ("Medium".equalsIgnoreCase(priority)) priorityCode = "MEDIUM";
         if ("Low".equalsIgnoreCase(priority)) priorityCode = "LOW";
 
-        List<Task> results = taskService.searchAndFilter(query, statusCode, priorityCode);
+        // Query service with active quick filter
+        List<Task> results = taskService.searchAndFilter(query, activeQuickFilter, priorityCode);
+
+        // Secondary Subject filter if specified
+        if (selectedSubject != null && !selectedSubject.trim().isEmpty() && !selectedSubject.equalsIgnoreCase("All Subjects")) {
+            results = results.stream()
+                    .filter(t -> t.getSubject() != null && t.getSubject().equalsIgnoreCase(selectedSubject.trim()))
+                    .toList();
+        }
+
         taskGrid.setItems(results);
 
         boolean hasResults = !results.isEmpty();
@@ -329,22 +458,47 @@ public class TasksView extends VerticalLayout implements Refreshable {
             if (taskService.getTotalCount() == 0) {
                 emptyStateTitle.setText("No Tasks Found");
                 emptyStateDesc.setText("Your study list is empty. Create your first assignment to get started!");
+                emptyStateActionBtn.setText("Add First Task");
+                emptyStateActionBtn.setIcon(VaadinIcon.PLUS.create());
+                emptyStateActionBtn.addClickListener(e -> {
+                    TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
+                    dialog.open();
+                });
             } else {
                 emptyStateTitle.setText("No Matching Assignments");
-                emptyStateDesc.setText("Try adjusting your search keywords or resetting the status and priority filters.");
+                emptyStateDesc.setText("No assignments match your active filters. Try adjusting search terms or resetting filters.");
+                emptyStateActionBtn.setText("Reset All Filters");
+                emptyStateActionBtn.setIcon(VaadinIcon.REFRESH.create());
+                emptyStateActionBtn.addClickListener(e -> resetFilters());
             }
         }
     }
 
     private void resetFilters() {
         searchField.clear();
-        statusFilter.setValue("All Statuses");
         priorityFilter.setValue("All Priorities");
+        subjectFilter.clear();
+        activeQuickFilter = "ALL";
+        updateChipsActiveState();
         applyFilters();
+    }
+
+    private void updateParentLayout() {
+        if (getParent().isPresent() && getParent().get() instanceof MainLayout ml) {
+            ml.updateNavBadges();
+        }
     }
 
     @Override
     public void refresh() {
+        updateChipsCounters();
+
+        // Update subjects in dropdown
+        List<String> subjects = new ArrayList<>();
+        subjects.add("All Subjects");
+        subjects.addAll(taskService.getAllSubjects());
+        subjectFilter.setItems(subjects);
+
         applyFilters();
     }
 }

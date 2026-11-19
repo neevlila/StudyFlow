@@ -6,24 +6,34 @@ import com.studyflow.model.TaskStatus;
 import com.studyflow.service.TaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
  * Modal form dialog for creating and editing study assignments.
- * Demonstrates basic validation, event handling, and clean component layout.
+ * Features quick due date preset chips, subject autocomplete,
+ * priority selector, validation, and responsive mobile-first form layout.
  */
 public class TaskFormDialog extends Dialog {
 
@@ -32,10 +42,10 @@ public class TaskFormDialog extends Dialog {
     private final Consumer<Task> onSaveCallback;
 
     private final TextField titleField = new TextField("Task Title");
-    private final TextField subjectField = new TextField("Subject / Course");
+    private final ComboBox<String> subjectField = new ComboBox<>("Subject / Course");
     private final DatePicker dueDateField = new DatePicker("Due Date");
     private final RadioButtonGroup<Priority> priorityGroup = new RadioButtonGroup<>("Priority");
-    private final TextArea descriptionField = new TextArea("Description (Optional)");
+    private final TextArea descriptionField = new TextArea("Notes & Description (Optional)");
 
     public TaskFormDialog(TaskService taskService, Task existingTask, Consumer<Task> onSaveCallback) {
         this.taskService = taskService;
@@ -48,10 +58,29 @@ public class TaskFormDialog extends Dialog {
         configureFields();
         populateFields();
 
+        // Build Due Date section with Quick Presets
+        VerticalLayout dueDateSection = new VerticalLayout();
+        dueDateSection.setPadding(false);
+        dueDateSection.setSpacing(false);
+        dueDateSection.setWidthFull();
+
+        dueDateField.setWidthFull();
+
+        Div datePresets = new Div();
+        datePresets.addClassName("sf-date-presets");
+
+        Button todayBtn = createDatePresetBtn("Today", LocalDate.now());
+        Button tomorrowBtn = createDatePresetBtn("Tomorrow", LocalDate.now().plusDays(1));
+        Button in3DaysBtn = createDatePresetBtn("+3 Days", LocalDate.now().plusDays(3));
+        Button nextWeekBtn = createDatePresetBtn("Next Week", LocalDate.now().plusDays(7));
+
+        datePresets.add(todayBtn, tomorrowBtn, in3DaysBtn, nextWeekBtn);
+        dueDateSection.add(dueDateField, datePresets);
+
         FormLayout formLayout = new FormLayout();
         formLayout.add(titleField, 2);
         formLayout.add(subjectField, 1);
-        formLayout.add(dueDateField, 1);
+        formLayout.add(dueDateSection, 1);
         formLayout.add(priorityGroup, 2);
         formLayout.add(descriptionField, 2);
         formLayout.setResponsiveSteps(
@@ -62,10 +91,10 @@ public class TaskFormDialog extends Dialog {
         add(formLayout);
 
         // Action buttons
-        Button saveBtn = new Button(isEdit ? "Save Changes" : "Create Task",
+        Button saveBtn = new Button(isEdit ? "Save Changes" : "Create Assignment",
                 isEdit ? VaadinIcon.CHECK.create() : VaadinIcon.PLUS.create());
+        saveBtn.addClassName("sf-primary-btn");
         saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        saveBtn.getStyle().set("background", "#6366F1");
         saveBtn.addClickListener(e -> handleSave());
 
         Button cancelBtn = new Button("Cancel", e -> close());
@@ -73,8 +102,14 @@ public class TaskFormDialog extends Dialog {
 
         getFooter().add(cancelBtn, saveBtn);
 
-        setWidth("min(560px, 92vw)");
+        setWidth("min(560px, 95vw)");
         setModal(true);
+    }
+
+    private Button createDatePresetBtn(String label, LocalDate targetDate) {
+        Button btn = new Button(label, e -> dueDateField.setValue(targetDate));
+        btn.addClassName("sf-date-preset-btn");
+        return btn;
     }
 
     private void configureFields() {
@@ -83,10 +118,27 @@ public class TaskFormDialog extends Dialog {
         titleField.setClearButtonVisible(true);
         titleField.setMaxLength(200);
 
+        // Autocomplete with existing subjects + common coursework subjects
+        Set<String> subjectOptions = new LinkedHashSet<>();
+        subjectOptions.addAll(taskService.getAllSubjects());
+        subjectOptions.add("DAA");
+        subjectOptions.add("Web Technology");
+        subjectOptions.add("DBMS");
+        subjectOptions.add("Computer Networks");
+        subjectOptions.add("Operating Systems");
+        subjectOptions.add("Software Engg");
+        subjectOptions.add("Java");
+        subjectOptions.add("Mathematics");
+
+        subjectField.setItems(new ArrayList<>(subjectOptions));
+        subjectField.setAllowCustomValue(true);
+        subjectField.addCustomValueSetListener(e -> {
+            String customVal = e.getDetail();
+            subjectField.setValue(customVal);
+        });
         subjectField.setRequired(true);
-        subjectField.setPlaceholder("e.g. DAA, Java, DBMS, Networks");
+        subjectField.setPlaceholder("Select or type subject...");
         subjectField.setClearButtonVisible(true);
-        subjectField.setMaxLength(100);
 
         dueDateField.setRequired(true);
         dueDateField.setValue(LocalDate.now());
@@ -102,15 +154,15 @@ public class TaskFormDialog extends Dialog {
             };
             badge.getStyle()
                     .set("color", color)
-                    .set("font-weight", "600")
+                    .set("font-weight", "700")
                     .set("font-size", "0.85rem");
             return badge;
         }));
         priorityGroup.setValue(Priority.MEDIUM);
 
-        descriptionField.setPlaceholder("Add assignment notes, submission links, or steps...");
+        descriptionField.setPlaceholder("Add assignment notes, submission requirements, or links...");
         descriptionField.setMaxLength(1000);
-        descriptionField.setMinHeight("100px");
+        descriptionField.setMinHeight("95px");
     }
 
     private void populateFields() {
@@ -131,12 +183,9 @@ public class TaskFormDialog extends Dialog {
         }
     }
 
-    /**
-     * Validates user input and saves the record into the H2 database via TaskService.
-     */
     private void handleSave() {
         String title = titleField.getValue().trim();
-        String subject = subjectField.getValue().trim();
+        String subject = subjectField.getValue() != null ? subjectField.getValue().trim() : "";
         LocalDate dueDate = dueDateField.getValue();
         Priority priority = priorityGroup.getValue();
         String description = descriptionField.getValue();
@@ -154,7 +203,7 @@ public class TaskFormDialog extends Dialog {
 
         if (subject.isEmpty()) {
             subjectField.setInvalid(true);
-            subjectField.setErrorMessage("Subject cannot be empty.");
+            subjectField.setErrorMessage("Please choose or enter a subject.");
             hasError = true;
         } else {
             subjectField.setInvalid(false);
@@ -187,8 +236,8 @@ public class TaskFormDialog extends Dialog {
             Task saved = taskService.saveTask(task);
 
             Notification notification = Notification.show(
-                    task.getId() != null ? "Task updated successfully!" : "Task created successfully!",
-                    3000,
+                    task.getId() != null ? "Assignment updated successfully!" : "Assignment created successfully!",
+                    2500,
                     Notification.Position.TOP_END
             );
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);

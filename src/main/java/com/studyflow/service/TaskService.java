@@ -376,6 +376,33 @@ public class TaskService {
     }
 
     /**
+     * Count of tasks due today.
+     */
+    public int getDueTodayCount() {
+        List<Task> tasks = getAllTasks();
+        int todayCount = 0;
+        for (Task task : tasks) {
+            if (task.isDueToday()) {
+                todayCount++;
+            }
+        }
+        return todayCount;
+    }
+
+    /**
+     * Returns a distinct, alphabetically sorted list of subjects across all current tasks.
+     */
+    public List<String> getAllSubjects() {
+        return getAllTasks().stream()
+                .map(Task::getSubject)
+                .filter(s -> s != null && !s.trim().isEmpty())
+                .map(String::trim)
+                .distinct()
+                .sorted(String.CASE_INSENSITIVE_ORDER)
+                .toList();
+    }
+
+    /**
      * Calculates completion percentage: (Completed / Total) * 100.
      * Safely handles total == 0 to prevent division by zero.
      */
@@ -440,11 +467,15 @@ public class TaskService {
                 matchesSearch = title.contains(cleanQuery) || subject.contains(cleanQuery);
             }
 
-            // 2. Status Filter
+            // 2. Status / Quick Filter
             boolean matchesStatus = true;
             if (statusFilter != null && !statusFilter.equalsIgnoreCase("ALL")) {
-                if (task.getStatus() == null || !task.getStatus().name().equalsIgnoreCase(statusFilter)) {
-                    matchesStatus = false;
+                if ("OVERDUE".equalsIgnoreCase(statusFilter)) {
+                    matchesStatus = task.isOverdue();
+                } else if ("TODAY".equalsIgnoreCase(statusFilter)) {
+                    matchesStatus = task.isDueToday();
+                } else {
+                    matchesStatus = (task.getStatus() != null && task.getStatus().name().equalsIgnoreCase(statusFilter));
                 }
             }
 

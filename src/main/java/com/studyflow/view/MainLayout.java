@@ -12,6 +12,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -25,14 +27,18 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Main application layout featuring a responsive sidebar drawer,
- * top navigation bar with live date, global "+ Add Task" button,
- * and automatic synchronization with the browser's LocalStorage database.
+ * Main application layout featuring a modern responsive sidebar drawer,
+ * sticky glassmorphism navbar, live counters, and dual storage sync.
  */
 public class MainLayout extends AppLayout {
 
     private final TaskService taskService;
     private final H2 viewTitle = new H2("Dashboard");
+
+    // Dynamic Sidenav badge indicators
+    private final Span tasksBadge = new Span("0");
+    private final Span completedBadge = new Span("0");
+    private final Span headerPendingPill = new Span();
 
     public MainLayout(TaskService taskService) {
         this.taskService = taskService;
@@ -44,8 +50,6 @@ public class MainLayout extends AppLayout {
 
     /**
      * Initializes bidirectional synchronization with browser LocalStorage.
-     * When a user visits StudyFlow on Render or locally, their saved tasks are
-     * loaded directly from their client browser.
      */
     @Override
     protected void onAttach(AttachEvent attachEvent) {
@@ -65,53 +69,79 @@ public class MainLayout extends AppLayout {
                     );
                 }
                 taskService.setSessionLoaded(true);
+                updateNavBadges();
 
                 if (getContent() instanceof Refreshable r) {
                     r.refresh();
                 }
             });
+        } else {
+            updateNavBadges();
+        }
+    }
+
+    public void updateNavBadges() {
+        int pending = taskService.getPendingCount();
+        int completed = taskService.getCompletedCount();
+
+        tasksBadge.setText(String.valueOf(pending));
+        completedBadge.setText(String.valueOf(completed));
+
+        if (pending > 0) {
+            headerPendingPill.setText(pending + " Pending");
+            headerPendingPill.setVisible(true);
+        } else {
+            headerPendingPill.setText("All Clear");
+            headerPendingPill.setVisible(true);
         }
     }
 
     private void addHeaderContent() {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Toggle Menu");
+        toggle.getStyle().set("cursor", "pointer");
 
         viewTitle.addClassName("sf-view-title");
         viewTitle.getStyle()
-                .set("font-size", "1.25rem")
-                .set("font-weight", "600")
+                .set("font-size", "1.2rem")
+                .set("font-weight", "700")
                 .set("margin", "0")
-                .set("color", "#F8FAFC");
+                .set("color", "#F8FAFC")
+                .set("letter-spacing", "-0.01em");
 
         // Format today's date
-        String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d, yyyy"));
+        String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d"));
         Span dateSpan = new Span(formattedDate);
         dateSpan.addClassName("sf-header-date");
         dateSpan.getStyle()
                 .set("color", "#94A3B8")
-                .set("font-size", "0.875rem")
+                .set("font-size", "0.85rem")
+                .set("font-weight", "500")
                 .set("margin-left", "auto")
-                .set("padding-right", "1rem");
+                .set("padding-right", "0.75rem");
+
+        // Header Pending workload pill
+        headerPendingPill.addClassNames("sf-badge", "sf-badge-pending", "sf-header-date");
+        headerPendingPill.getStyle()
+                .set("font-size", "0.75rem")
+                .set("margin-right", "0.75rem")
+                .set("padding", "0.25rem 0.65rem");
 
         // Global New Task Button
         Button newTaskBtn = new Button("New Task", VaadinIcon.PLUS.create(), e -> {
             TaskFormDialog dialog = new TaskFormDialog(taskService, null, task -> {
+                updateNavBadges();
                 if (getContent() instanceof Refreshable r) {
                     r.refresh();
                 }
             });
             dialog.open();
         });
-        newTaskBtn.addClassName("sf-header-new-task-btn");
+        newTaskBtn.addClassNames("sf-header-new-task-btn", "sf-primary-btn");
         newTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        newTaskBtn.getStyle()
-                .set("background", "#6366F1")
-                .set("font-weight", "600")
-                .set("border-radius", "8px")
-                .set("cursor", "pointer");
+        newTaskBtn.setTooltipText("Create a new coursework task (Ctrl+N)");
 
-        HorizontalLayout header = new HorizontalLayout(toggle, viewTitle, dateSpan, newTaskBtn);
+        HorizontalLayout header = new HorizontalLayout(toggle, viewTitle, dateSpan, headerPendingPill, newTaskBtn);
         header.addClassName("sf-header-layout");
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
@@ -119,7 +149,6 @@ public class MainLayout extends AppLayout {
                 LumoUtility.Padding.Vertical.SMALL,
                 LumoUtility.Padding.Horizontal.MEDIUM
         );
-        header.getStyle().set("background", "#131E31");
 
         addToNavbar(false, header);
     }
@@ -129,7 +158,7 @@ public class MainLayout extends AppLayout {
         HorizontalLayout brandLayout = new HorizontalLayout();
         brandLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         brandLayout.setSpacing(true);
-        brandLayout.getStyle().set("padding", "1.25rem 1rem 0.75rem 1rem");
+        brandLayout.getStyle().set("padding", "1.25rem 1.25rem 0.5rem 1.25rem");
 
         Span iconSpan = new Span(VaadinIcon.ACADEMY_CAP.create());
         iconSpan.getStyle()
@@ -138,14 +167,15 @@ public class MainLayout extends AppLayout {
 
         H1 appName = new H1("StudyFlow");
         appName.getStyle()
-                .set("font-size", "1.25rem")
-                .set("font-weight", "700")
+                .set("font-size", "1.3rem")
+                .set("font-weight", "800")
                 .set("margin", "0")
-                .set("color", "#F8FAFC");
+                .set("color", "#F8FAFC")
+                .set("letter-spacing", "-0.02em");
 
         Span versionBadge = new Span("v1.0");
         versionBadge.getStyle()
-                .set("font-size", "0.6875rem")
+                .set("font-size", "0.68rem")
                 .set("color", "#94A3B8")
                 .set("background", "#1E293B")
                 .set("padding", "0.15rem 0.45rem")
@@ -154,49 +184,44 @@ public class MainLayout extends AppLayout {
 
         brandLayout.add(iconSpan, appName, versionBadge);
 
-        Paragraph tagline = new Paragraph("Student Planner & Assignment Tracker");
+        Paragraph tagline = new Paragraph("Student Planner & Coursework Tracker");
         tagline.getStyle()
                 .set("color", "#64748B")
                 .set("font-size", "0.75rem")
-                .set("margin", "0 0 1rem 1rem");
+                .set("margin", "0 0 1rem 1.25rem");
+
+        // Dynamic badge counters
+        tasksBadge.addClassNames("sf-nav-badge", "pending");
+        completedBadge.addClassNames("sf-nav-badge", "completed");
 
         // Navigation Menu
         SideNav nav = new SideNav();
         SideNavItem dashboardLink = new SideNavItem("Dashboard", DashboardView.class, VaadinIcon.GRID_BIG.create());
         SideNavItem tasksLink = new SideNavItem("My Tasks", TasksView.class, VaadinIcon.TASKS.create());
+        tasksLink.setSuffixComponent(tasksBadge);
+
         SideNavItem completedLink = new SideNavItem("Completed", CompletedTasksView.class, VaadinIcon.CHECK_CIRCLE.create());
+        completedLink.setSuffixComponent(completedBadge);
 
         nav.addItem(dashboardLink, tasksLink, completedLink);
         nav.getStyle().set("padding", "0 0.5rem");
 
-        // Footer in drawer with Storage Engine indicator
+        // Footer in drawer with Storage Engine indicator and Demo Data Reset
         VerticalLayout drawerFooter = new VerticalLayout();
-        drawerFooter.setSpacing(false);
+        drawerFooter.setSpacing(true);
         drawerFooter.getStyle()
-                .set("padding", "1rem")
+                .set("padding", "1rem 1.25rem")
                 .set("margin-top", "auto")
                 .set("border-top", "1px solid #1E293B");
-
-        Span dbTitle = new Span("STORAGE ENGINE");
-        dbTitle.getStyle()
-                .set("font-size", "0.6875rem")
-                .set("color", "#64748B")
-                .set("font-weight", "700")
-                .set("letter-spacing", "0.05em");
 
         HorizontalLayout dbStatus = new HorizontalLayout();
         dbStatus.setAlignItems(FlexComponent.Alignment.CENTER);
         dbStatus.setSpacing(true);
 
         Span statusDot = new Span();
-        statusDot.getStyle()
-                .set("width", "8px")
-                .set("height", "8px")
-                .set("border-radius", "50%")
-                .set("background", "#10B981")
-                .set("display", "inline-block");
+        statusDot.addClassName("sf-status-dot-active");
 
-        Span statusText = new Span("Browser LocalStorage");
+        Span statusText = new Span("LocalStorage Sync");
         statusText.getStyle()
                 .set("color", "#94A3B8")
                 .set("font-size", "0.75rem")
@@ -204,14 +229,24 @@ public class MainLayout extends AppLayout {
 
         dbStatus.add(statusDot, statusText);
 
-        Span renderBadge = new Span("Render & Cloud Ready");
-        renderBadge.getStyle()
-                .set("color", "#6366F1")
-                .set("font-size", "0.7rem")
-                .set("font-weight", "500")
-                .set("margin-top", "0.25rem");
+        Button resetBtn = new Button("Reset Sample Tasks", VaadinIcon.REFRESH.create(), e -> {
+            taskService.resetToSampleData();
+            updateNavBadges();
+            if (getContent() instanceof Refreshable r) {
+                r.refresh();
+            }
+            Notification n = Notification.show("Sample coursework data restored!", 2500, Notification.Position.BOTTOM_START);
+            n.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+        });
+        resetBtn.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        resetBtn.setWidthFull();
+        resetBtn.getStyle()
+                .set("color", "#64748B")
+                .set("font-size", "0.72rem")
+                .set("justify-content", "flex-start")
+                .set("padding", "0");
 
-        drawerFooter.add(dbTitle, dbStatus, renderBadge);
+        drawerFooter.add(dbStatus, resetBtn);
 
         VerticalLayout drawerLayout = new VerticalLayout(brandLayout, tagline, nav, drawerFooter);
         drawerLayout.setSizeFull();
@@ -226,10 +261,16 @@ public class MainLayout extends AppLayout {
         super.afterNavigation();
         String title = getCurrentPageTitle();
         viewTitle.setText(title);
+        updateNavBadges();
     }
 
     private String getCurrentPageTitle() {
         PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "StudyFlow" : title.value();
+        if (title == null) return "StudyFlow";
+        String val = title.value();
+        if (val.contains(" - ")) {
+            return val.split(" - ")[0];
+        }
+        return val;
     }
 }

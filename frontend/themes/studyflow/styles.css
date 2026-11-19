@@ -1,71 +1,243 @@
-/* StudyFlow - Modern Dark Productivity Dashboard Styles */
+/* StudyFlow - Modern Dark Productivity Dashboard & Responsive Design System */
 
 :root {
-    --sf-bg: #0F172A;
+    /* Color Palette */
+    --sf-bg: #0B1120;
+    --sf-bg-alt: #0F172A;
     --sf-surface: #1E293B;
-    --sf-surface-hover: #273549;
+    --sf-surface-hover: #26354A;
     --sf-surface-alt: #162032;
     --sf-border: #334155;
-    --sf-border-subtle: #243247;
+    --sf-border-subtle: #1E293B;
+    --sf-border-focus: #6366F1;
+    
     --sf-primary: #6366F1;
     --sf-primary-hover: #4F46E5;
+    --sf-primary-light: rgba(99, 102, 241, 0.15);
+    --sf-accent-cyan: #06B6D4;
     --sf-accent-teal: #0D9488;
+    
     --sf-text-main: #F8FAFC;
     --sf-text-muted: #94A3B8;
     --sf-text-dim: #64748B;
     
     --sf-success: #10B981;
+    --sf-success-light: rgba(16, 185, 129, 0.15);
     --sf-warning: #F59E0B;
+    --sf-warning-light: rgba(245, 158, 11, 0.15);
     --sf-danger: #EF4444;
+    --sf-danger-light: rgba(239, 68, 68, 0.15);
+
+    --sf-radius-lg: 16px;
     --sf-radius: 12px;
     --sf-radius-sm: 8px;
-    --sf-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    --sf-radius-full: 9999px;
+
+    --sf-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+    --sf-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    --sf-glow-primary: 0 0 20px rgba(99, 102, 241, 0.25);
+
+    /* Vaadin Lumo Dark Integration Overrides */
+    --lumo-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", system-ui, sans-serif;
+    --lumo-base-color: #1E293B;
+    --lumo-body-text-color: #F8FAFC;
+    --lumo-secondary-text-color: #94A3B8;
+    --lumo-tertiary-text-color: #64748B;
+    --lumo-primary-color: #6366F1;
+    --lumo-primary-color-50pct: rgba(99, 102, 241, 0.5);
+    --lumo-primary-color-10pct: rgba(99, 102, 241, 0.12);
+    --lumo-primary-text-color: #818CF8;
+    --lumo-error-color: #EF4444;
+    --lumo-error-text-color: #F87171;
+    --lumo-success-color: #10B981;
+    --lumo-success-text-color: #34D399;
+    --lumo-border-radius-m: 10px;
+    --lumo-border-radius-l: 14px;
 }
 
 /* Base Body Styles */
 html, body {
     background-color: var(--sf-bg) !important;
     color: var(--sf-text-main) !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif !important;
+    font-family: var(--lumo-font-family) !important;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
-/* AppLayout custom styling */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0B1120;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ========================================================
+   AppLayout, Navbar & Drawer
+   ======================================================== */
+
 vaadin-app-layout::part(navbar) {
-    background: #131E31;
-    border-bottom: 1px solid var(--sf-border);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    background: rgba(19, 30, 49, 0.92) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid var(--sf-border) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 vaadin-app-layout::part(drawer) {
-    background: #0B1120;
-    border-right: 1px solid var(--sf-border);
+    background: #0B1120 !important;
+    border-right: 1px solid var(--sf-border) !important;
 }
 
-/* StudyFlow Card container */
+/* Sidenav item styling */
+vaadin-side-nav-item::part(link) {
+    border-radius: var(--sf-radius-sm);
+    color: var(--sf-text-muted);
+    font-weight: 500;
+    transition: all 0.15s ease;
+    padding: 0.6rem 0.85rem;
+    margin: 0.2rem 0.5rem;
+}
+
+vaadin-side-nav-item::part(link):hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--sf-text-main);
+}
+
+vaadin-side-nav-item[current]::part(link) {
+    background: var(--sf-primary-light) !important;
+    color: #818CF8 !important;
+    font-weight: 600 !important;
+    border-left: 3px solid #6366F1 !important;
+}
+
+/* Drawer Counter Badges */
+.sf-nav-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--sf-radius-full);
+    margin-left: auto;
+    letter-spacing: 0.02em;
+}
+
+.sf-nav-badge.pending {
+    background: rgba(99, 102, 241, 0.2);
+    color: #A5B4FC;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.sf-nav-badge.completed {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+/* Pulse animation for storage dot */
+@keyframes pulseGlow {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.sf-status-dot-active {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10B981;
+    display: inline-block;
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+
+/* ========================================================
+   Card Containers & Hero Banner
+   ======================================================== */
+
 .sf-card {
     background: var(--sf-surface);
     border: 1px solid var(--sf-border);
-    border-radius: var(--sf-radius);
-    padding: 1.25rem 1.5rem;
+    border-radius: var(--sf-radius-lg);
+    padding: 1.35rem 1.6rem;
     box-shadow: var(--sf-shadow);
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sf-card:hover {
     border-color: #475569;
 }
 
-/* Stat Cards */
+/* Hero / Welcome Banner */
+.sf-welcome-banner {
+    background: linear-gradient(135deg, #1E293B 0%, #162032 50%, #1E1B4B 100%) !important;
+    border: 1px solid #3730A3 !important;
+    box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.15), var(--sf-shadow) !important;
+    border-radius: var(--sf-radius-lg) !important;
+    padding: 1.4rem 1.75rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1.25rem !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+.sf-banner-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(99, 102, 241, 0.2);
+    color: #A5B4FC;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    border-radius: var(--sf-radius-full);
+    padding: 0.2rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.4rem;
+}
+
+/* ========================================================
+   Stat Cards (Clickable & Responsive)
+   ======================================================== */
+
+.sf-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
 .sf-stat-card {
     background: var(--sf-surface);
     border: 1px solid var(--sf-border);
-    border-radius: var(--sf-radius);
-    padding: 1.25rem 1.5rem;
+    border-radius: var(--sf-radius-lg);
+    padding: 1.25rem 1.4rem;
     min-width: 0;
     box-sizing: border-box;
     position: relative;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.sf-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sf-shadow-lg);
 }
 
 .sf-stat-card::after {
@@ -75,63 +247,134 @@ vaadin-app-layout::part(drawer) {
     left: 0;
     width: 4px;
     height: 100%;
+    transition: width 0.2s ease;
+}
+
+.sf-stat-card:hover::after {
+    width: 6px;
 }
 
 .sf-stat-card.total::after { background: #6366F1; }
+.sf-stat-card.total:hover { border-color: #6366F1; }
+
 .sf-stat-card.pending::after { background: #F59E0B; }
+.sf-stat-card.pending:hover { border-color: #F59E0B; }
+
 .sf-stat-card.completed::after { background: #10B981; }
+.sf-stat-card.completed:hover { border-color: #10B981; }
+
 .sf-stat-card.overdue::after { background: #EF4444; }
+.sf-stat-card.overdue:hover { border-color: #EF4444; }
+
+.sf-stat-icon-wrapper {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+}
+
+.sf-stat-icon-wrapper.total { background: rgba(99, 102, 241, 0.15); color: #818CF8; }
+.sf-stat-icon-wrapper.pending { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
+.sf-stat-icon-wrapper.completed { background: rgba(16, 185, 129, 0.15); color: #34D399; }
+.sf-stat-icon-wrapper.overdue { background: rgba(239, 68, 68, 0.15); color: #F87171; }
 
 .sf-stat-value {
     font-size: 2.25rem;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.1;
     color: var(--sf-text-main);
+    letter-spacing: -0.02em;
+    margin: 0.35rem 0;
 }
 
 .sf-stat-label {
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--sf-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .sf-stat-subtext {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--sf-text-dim);
-    margin-top: 0.25rem;
 }
 
-/* Badges */
+.sf-stat-action-hint {
+    font-size: 0.72rem;
+    color: var(--sf-primary);
+    font-weight: 600;
+    margin-top: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
+}
+
+.sf-stat-card:hover .sf-stat-action-hint {
+    opacity: 1;
+}
+
+/* ========================================================
+   Custom Modern Progress Bar
+   ======================================================== */
+
+.sf-progress-track {
+    background: #0B1120;
+    border-radius: var(--sf-radius-full);
+    height: 12px;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--sf-border);
+    position: relative;
+    box-sizing: border-box;
+}
+
+.sf-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366F1 0%, #06B6D4 60%, #10B981 100%);
+    border-radius: var(--sf-radius-full);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+/* ========================================================
+   Badges & Pills
+   ======================================================== */
+
 .sf-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
     padding: 0.2rem 0.65rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    border-radius: var(--sf-radius-full);
+    font-size: 0.72rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    white-space: nowrap;
 }
 
 .sf-badge-high {
     background: rgba(239, 68, 68, 0.15);
     color: #F87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.35);
 }
 
 .sf-badge-medium {
     background: rgba(245, 158, 11, 0.15);
     color: #FBBF24;
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    border: 1px solid rgba(245, 158, 11, 0.35);
 }
 
 .sf-badge-low {
     background: rgba(16, 185, 129, 0.15);
     color: #34D399;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
 .sf-badge-pending {
@@ -143,47 +386,123 @@ vaadin-app-layout::part(drawer) {
 .sf-badge-completed {
     background: rgba(16, 185, 129, 0.15);
     color: #34D399;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
 .sf-badge-overdue {
-    background: rgba(239, 68, 68, 0.2);
-    color: #F87171;
+    background: rgba(239, 68, 68, 0.22);
+    color: #FCA5A5;
     border: 1px solid #EF4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.sf-badge-today {
+    background: rgba(245, 158, 11, 0.2);
+    color: #FDE68A;
+    border: 1px solid #F59E0B;
+}
+
+.sf-badge-soon {
+    background: rgba(99, 102, 241, 0.15);
+    color: #C7D2FE;
+    border: 1px solid rgba(99, 102, 241, 0.4);
 }
 
 .sf-badge-subject {
     background: rgba(148, 163, 184, 0.12);
-    color: #CBD5E1;
+    color: #E2E8F0;
     border: 1px solid var(--sf-border);
     border-radius: var(--sf-radius-sm);
-    padding: 0.15rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-}
-
-/* Nav Item styling */
-.sf-nav-item {
-    border-radius: var(--sf-radius-sm);
-    padding: 0.5rem 0.75rem;
-    color: var(--sf-text-muted);
-    transition: all 0.15s ease;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.sf-nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--sf-text-main);
-}
-
-.sf-nav-item.active {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818CF8;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.72rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-/* Primary Button Styling */
+/* ========================================================
+   Quick Filter Segmented Chips
+   ======================================================== */
+
+.sf-filter-chips-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.35rem;
+    width: 100%;
+}
+
+.sf-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--sf-radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--sf-text-muted);
+    background: rgba(30, 41, 59, 0.65);
+    border: 1px solid var(--sf-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.sf-filter-chip:hover {
+    background: var(--sf-surface-hover);
+    color: var(--sf-text-main);
+    border-color: #475569;
+}
+
+.sf-filter-chip.active {
+    background: var(--sf-primary) !important;
+    color: #FFFFFF !important;
+    border-color: var(--sf-primary) !important;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+}
+
+.sf-chip-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.05rem 0.45rem;
+    border-radius: var(--sf-radius-full);
+    background: rgba(0, 0, 0, 0.25);
+    color: inherit;
+}
+
+.sf-filter-chip.active .sf-chip-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+}
+
+/* ========================================================
+   Toolbar & Input Controls
+   ======================================================== */
+
+.sf-toolbar {
+    background: var(--sf-surface);
+    border: 1px solid var(--sf-border);
+    border-radius: var(--sf-radius-lg);
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: var(--sf-shadow);
+}
+
+.sf-search-field {
+    flex: 1 1 260px;
+    min-width: 200px;
+}
+
 .sf-primary-btn {
     background: var(--sf-primary) !important;
     color: #FFFFFF !important;
@@ -197,13 +516,17 @@ vaadin-app-layout::part(drawer) {
 .sf-primary-btn:hover {
     background: var(--sf-primary-hover) !important;
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45) !important;
 }
 
-/* Grid Table custom dark accents */
+/* ========================================================
+   Vaadin Grid & Table Styling
+   ======================================================== */
+
 vaadin-grid {
     background-color: var(--sf-surface) !important;
     border: 1px solid var(--sf-border) !important;
-    border-radius: var(--sf-radius) !important;
+    border-radius: var(--sf-radius-lg) !important;
     overflow: hidden;
 }
 
@@ -213,91 +536,69 @@ vaadin-grid::part(header-cell) {
     font-size: 0.75rem !important;
     text-transform: uppercase !important;
     letter-spacing: 0.06em !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     border-bottom: 1px solid var(--sf-border) !important;
+    padding: 0.85rem 1rem !important;
 }
 
 vaadin-grid::part(body-cell) {
     border-bottom: 1px solid var(--sf-border-subtle) !important;
     color: var(--sf-text-main) !important;
+    padding: 0.75rem 1rem !important;
 }
 
 vaadin-grid::part(row):hover {
-    background-color: rgba(255, 255, 255, 0.03) !important;
+    background-color: rgba(255, 255, 255, 0.035) !important;
 }
 
-/* Custom Progress Bar */
-.sf-progress-track {
-    background: #0B1120;
-    border-radius: 9999px;
-    height: 10px;
-    width: 100%;
-    overflow: hidden;
-    border: 1px solid var(--sf-border);
-}
-
-.sf-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #6366F1, #10B981);
-    border-radius: 9999px;
-    transition: width 0.4s ease;
-}
-
-/* ========================================================
-   Mobile & Responsive Layout Enhancements
-   ======================================================== */
-
-/* Desktop Grid container for stat cards (4 equal columns spanning 100% width) */
-.sf-stats-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 1.25rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-.sf-stat-card {
-    width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-}
-
-/* Banner responsiveness */
-.sf-welcome-banner {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 1rem !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-}
-
-/* Grid & Table Responsive Wrapper */
 .sf-grid-wrapper {
     width: 100% !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    border-radius: var(--sf-radius);
+    border-radius: var(--sf-radius-lg);
 }
 
-.sf-swipe-hint {
-    display: none !important;
+/* Responsive Mobile Meta embedded in Task cell */
+.sf-mobile-meta {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
 }
 
-/* Toolbar layout */
-.sf-toolbar {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: center !important;
-    gap: 0.75rem !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+/* Date Preset Pills in Dialog */
+.sf-date-presets {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.35rem;
 }
 
-.sf-search-field {
-    flex: 1 1 240px !important;
+.sf-date-preset-btn {
+    font-size: 0.72rem !important;
+    padding: 0.15rem 0.55rem !important;
+    height: 28px !important;
+    border-radius: var(--sf-radius-full) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #94A3B8 !important;
+    border: 1px solid #334155 !important;
+    font-weight: 500 !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
 }
 
-/* Tablet Layout (<= 1024px) */
+.sf-date-preset-btn:hover {
+    background: var(--sf-primary-light) !important;
+    color: #A5B4FC !important;
+    border-color: #6366F1 !important;
+}
+
+/* ========================================================
+   Responsive Media Queries
+   ======================================================== */
+
+/* Tablet (<= 1024px) */
 @media (max-width: 1024px) {
     .sf-stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
@@ -307,76 +608,80 @@ vaadin-grid::part(row):hover {
 
 /* Mobile Screens (<= 768px) */
 @media (max-width: 768px) {
-    /* 2x2 Grid on Mobile: Total, Pending on Row 1; Completed, Overdue on Row 2 */
+    /* Show mobile meta badges under task title */
+    .sf-mobile-meta {
+        display: flex !important;
+    }
+
+    /* Hide dedicated desktop-only grid columns on phones to fit 100% screen */
+    vaadin-grid-column.sf-col-desktop,
+    [class*="sf-col-desktop"] {
+        display: none !important;
+    }
+
+    /* 2 columns on mobile for stat cards */
     .sf-stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.65rem !important;
+        gap: 0.75rem !important;
     }
 
     .sf-stat-card {
-        padding: 0.85rem 1rem !important;
+        padding: 0.95rem 1rem !important;
+    }
+
+    .sf-stat-icon-wrapper {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.95rem !important;
     }
 
     .sf-stat-label {
-        font-size: 0.725rem !important;
+        font-size: 0.72rem !important;
     }
 
     .sf-stat-value {
-        font-size: 1.75rem !important;
+        font-size: 1.8rem !important;
         margin: 0.2rem 0 !important;
     }
 
     .sf-stat-subtext {
-        font-size: 0.6875rem !important;
+        font-size: 0.7rem !important;
+    }
+
+    .sf-stat-action-hint {
+        display: none !important;
     }
 
     /* Stack banner elements vertically with full-width CTA */
     .sf-welcome-banner {
         flex-direction: column !important;
         align-items: stretch !important;
-        padding: 1rem 1.15rem !important;
+        padding: 1.15rem 1.25rem !important;
+        gap: 0.85rem !important;
     }
 
-    .sf-welcome-banner .sf-banner-actions {
+    .sf-banner-actions {
         width: 100% !important;
-        margin-top: 0.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
     }
 
-    .sf-welcome-banner .sf-banner-actions > * {
+    .sf-banner-actions > * {
         width: 100% !important;
     }
 
-    /* Show swipe hint on mobile */
-    .sf-swipe-hint {
-        display: block !important;
-        text-align: right !important;
-        font-size: 0.7rem !important;
-        color: #64748B !important;
-        font-style: italic !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    /* Minimum table width to preserve readable columns during touch scroll */
-    .sf-grid-wrapper vaadin-grid {
-        min-width: 580px !important;
-    }
-
-    /* Structured Mobile Toolbar */
+    /* Mobile Toolbar */
     .sf-toolbar {
         flex-direction: column !important;
         align-items: stretch !important;
-        padding: 0.75rem !important;
-        gap: 0.5rem !important;
+        padding: 0.85rem !important;
+        gap: 0.65rem !important;
     }
 
     .sf-toolbar > * {
         width: 100% !important;
-        min-width: 100% !important;
         margin-left: 0 !important;
-    }
-
-    .sf-toolbar .sf-search-field {
-        width: 100% !important;
     }
 
     .sf-filter-group {
@@ -385,23 +690,22 @@ vaadin-grid::part(row):hover {
         gap: 0.5rem !important;
     }
 
-    .sf-filter-group .sf-filter-select {
-        flex: 1 1 45% !important;
-        width: auto !important;
+    .sf-filter-group > * {
+        flex: 1 1 50% !important;
     }
 
     .sf-toolbar-add-btn {
         width: 100% !important;
     }
 
-    /* Mobile Header Bar */
+    /* Mobile Header */
     .sf-header-date {
         display: none !important;
     }
 
     .sf-view-title {
         font-size: 1.05rem !important;
-        max-width: 150px !important;
+        max-width: 140px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -414,7 +718,7 @@ vaadin-grid::part(row):hover {
     }
 
     .sf-card {
-        padding: 1rem !important;
+        padding: 1rem 1.15rem !important;
     }
 
     .sf-completed-badge {
@@ -423,21 +727,32 @@ vaadin-grid::part(row):hover {
         justify-content: center !important;
         margin-left: 0 !important;
     }
+
+    vaadin-grid::part(header-cell),
+    vaadin-grid::part(body-cell) {
+        padding: 0.65rem 0.5rem !important;
+    }
 }
 
 /* Small Handheld Screens (<= 480px) */
 @media (max-width: 480px) {
-    vaadin-dialog-overlay::part(overlay) {
-        width: 95vw !important;
-        max-width: 95vw !important;
-        margin: auto !important;
-        padding: 0.75rem !important;
+    .sf-stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.5rem !important;
     }
 
-    vaadin-grid::part(header-cell),
-    vaadin-grid::part(body-cell) {
-        padding: 0.5rem !important;
-        font-size: 0.8rem !important;
+    .sf-stat-card {
+        padding: 0.75rem 0.85rem !important;
+    }
+
+    .sf-stat-value {
+        font-size: 1.5rem !important;
+    }
+
+    vaadin-dialog-overlay::part(overlay) {
+        width: 96vw !important;
+        max-width: 96vw !important;
+        margin: auto !important;
+        padding: 0.85rem !important;
     }
 }
-
