@@ -299,6 +299,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     }
 
     private void configureUpcomingGrid() {
+        upcomingGrid.addClassName("sf-upcoming-grid");
         upcomingGrid.setAllRowsVisible(true);
 
         // Status checkbox / quick toggle
