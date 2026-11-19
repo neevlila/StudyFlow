@@ -7,6 +7,7 @@ import com.studyflow.service.TaskService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -50,9 +51,16 @@ public class CompletedTasksView extends VerticalLayout implements Refreshable {
         // 1. Header Toolbar
         add(createToolbar());
 
-        // 2. Table Grid
+        // 2. Table Grid with mobile-responsive wrapper
         configureGrid();
-        add(grid);
+        Div gridWrapper = new Div(grid);
+        gridWrapper.addClassName("sf-grid-wrapper");
+        gridWrapper.setSizeFull();
+
+        Span swipeHint = new Span("← Swipe table to view all columns →");
+        swipeHint.addClassName("sf-swipe-hint");
+
+        add(swipeHint, gridWrapper);
 
         // 3. Empty State
         configureEmptyState();

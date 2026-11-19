@@ -62,9 +62,16 @@ public class TasksView extends VerticalLayout implements Refreshable {
         // 1. Toolbar (Search, Filter, New Task button)
         add(createToolbar());
 
-        // 2. Table Grid
+        // 2. Table Grid with mobile-responsive wrapper
         configureGrid();
-        add(taskGrid);
+        Div gridWrapper = new Div(taskGrid);
+        gridWrapper.addClassName("sf-grid-wrapper");
+        gridWrapper.setSizeFull();
+
+        Span swipeHint = new Span("← Swipe table to view all columns →");
+        swipeHint.addClassName("sf-swipe-hint");
+
+        add(swipeHint, gridWrapper);
 
         // 3. Empty State Layout
         configureEmptyState();
@@ -114,6 +121,10 @@ public class TasksView extends VerticalLayout implements Refreshable {
         resetFilterBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         resetFilterBtn.addClickListener(e -> resetFilters());
 
+        HorizontalLayout filterGroup = new HorizontalLayout(statusFilter, priorityFilter, resetFilterBtn);
+        filterGroup.addClassName("sf-filter-group");
+        filterGroup.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+
         // Add Task Action
         Button addTaskBtn = new Button("New Task", VaadinIcon.PLUS.create(), e -> {
             TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
@@ -125,7 +136,7 @@ public class TasksView extends VerticalLayout implements Refreshable {
                 .set("background", "#6366F1")
                 .set("margin-left", "auto");
 
-        toolbar.add(searchField, statusFilter, priorityFilter, resetFilterBtn, addTaskBtn);
+        toolbar.add(searchField, filterGroup, addTaskBtn);
         return toolbar;
     }
 

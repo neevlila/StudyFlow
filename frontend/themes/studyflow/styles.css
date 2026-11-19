@@ -247,63 +247,126 @@ vaadin-grid::part(row):hover {
    Mobile & Responsive Layout Enhancements
    ======================================================== */
 
-/* Grid container for stat cards */
+/* Desktop Grid container for stat cards (4 equal columns spanning 100% width) */
 .sf-stats-grid {
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    width: 100%;
-    box-sizing: border-box;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 1.25rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.sf-stat-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* Banner responsiveness */
 .sf-welcome-banner {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    justify-content: space-between;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 }
 
-/* Responsive Table & Grid */
-vaadin-grid {
-    -webkit-overflow-scrolling: touch;
+/* Grid & Table Responsive Wrapper */
+.sf-grid-wrapper {
     width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: var(--sf-radius);
+}
+
+.sf-swipe-hint {
+    display: none !important;
+}
+
+/* Toolbar layout */
+.sf-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.sf-search-field {
+    flex: 1 1 240px !important;
 }
 
 /* Tablet Layout (<= 1024px) */
 @media (max-width: 1024px) {
     .sf-stats-grid {
         grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
     }
 }
 
 /* Mobile Screens (<= 768px) */
 @media (max-width: 768px) {
+    /* 2x2 Grid on Mobile: Total, Pending on Row 1; Completed, Overdue on Row 2 */
     .sf-stats-grid {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.65rem !important;
     }
 
+    .sf-stat-card {
+        padding: 0.85rem 1rem !important;
+    }
+
+    .sf-stat-label {
+        font-size: 0.725rem !important;
+    }
+
+    .sf-stat-value {
+        font-size: 1.75rem !important;
+        margin: 0.2rem 0 !important;
+    }
+
+    .sf-stat-subtext {
+        font-size: 0.6875rem !important;
+    }
+
+    /* Stack banner elements vertically with full-width CTA */
     .sf-welcome-banner {
         flex-direction: column !important;
         align-items: stretch !important;
-        padding: 1rem 1.25rem !important;
+        padding: 1rem 1.15rem !important;
     }
 
     .sf-welcome-banner .sf-banner-actions {
         width: 100% !important;
+        margin-top: 0.25rem !important;
     }
 
     .sf-welcome-banner .sf-banner-actions > * {
         width: 100% !important;
     }
 
+    /* Show swipe hint on mobile */
+    .sf-swipe-hint {
+        display: block !important;
+        text-align: right !important;
+        font-size: 0.7rem !important;
+        color: #64748B !important;
+        font-style: italic !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    /* Minimum table width to preserve readable columns during touch scroll */
+    .sf-grid-wrapper vaadin-grid {
+        min-width: 580px !important;
+    }
+
+    /* Structured Mobile Toolbar */
     .sf-toolbar {
         flex-direction: column !important;
         align-items: stretch !important;
-        padding: 0.85rem !important;
-        gap: 0.65rem !important;
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
     }
 
     .sf-toolbar > * {
@@ -312,22 +375,36 @@ vaadin-grid {
         margin-left: 0 !important;
     }
 
-    .sf-toolbar .sf-search-field,
-    .sf-toolbar .sf-filter-select,
-    .sf-toolbar .sf-toolbar-add-btn {
+    .sf-toolbar .sf-search-field {
         width: 100% !important;
     }
 
+    .sf-filter-group {
+        display: flex !important;
+        width: 100% !important;
+        gap: 0.5rem !important;
+    }
+
+    .sf-filter-group .sf-filter-select {
+        flex: 1 1 45% !important;
+        width: auto !important;
+    }
+
+    .sf-toolbar-add-btn {
+        width: 100% !important;
+    }
+
+    /* Mobile Header Bar */
     .sf-header-date {
         display: none !important;
     }
 
     .sf-view-title {
         font-size: 1.05rem !important;
-        max-width: 140px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        max-width: 150px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .sf-header-new-task-btn {
@@ -338,10 +415,6 @@ vaadin-grid {
 
     .sf-card {
         padding: 1rem !important;
-    }
-
-    .sf-stat-value {
-        font-size: 1.85rem !important;
     }
 
     .sf-completed-badge {

@@ -121,7 +121,7 @@ public class MainLayout extends AppLayout {
         );
         header.getStyle().set("background", "#131E31");
 
-        addToNavbar(true, header);
+        addToNavbar(false, header);
     }
 
     private void addDrawerContent() {

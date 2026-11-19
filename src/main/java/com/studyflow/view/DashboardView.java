@@ -128,6 +128,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     private Component createStatCardsLayout() {
         Div statsGrid = new Div();
         statsGrid.addClassName("sf-stats-grid");
+        statsGrid.setWidthFull();
 
         statsGrid.add(
                 buildStatCard("Total Tasks", totalVal, "All registered coursework", "total", VaadinIcon.TASKS, "#6366F1"),
@@ -140,10 +141,8 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     }
 
     private Component buildStatCard(String label, Span valueSpan, String subtext, String cssClass, VaadinIcon icon, String color) {
-        VerticalLayout card = new VerticalLayout();
+        Div card = new Div();
         card.addClassNames("sf-stat-card", cssClass);
-        card.setPadding(false);
-        card.setSpacing(false);
 
         HorizontalLayout header = new HorizontalLayout();
         header.setWidthFull();
@@ -246,6 +245,13 @@ public class DashboardView extends VerticalLayout implements Refreshable {
 
         configureUpcomingGrid();
 
+        Div gridWrapper = new Div(upcomingGrid);
+        gridWrapper.addClassName("sf-grid-wrapper");
+        gridWrapper.setWidthFull();
+
+        Span swipeHint = new Span("← Swipe table to view all columns →");
+        swipeHint.addClassName("sf-swipe-hint");
+
         emptyUpcomingNotice.setText("All caught up! You have no upcoming pending assignments.");
         emptyUpcomingNotice.getStyle()
                 .set("color", "#94A3B8")
@@ -254,7 +260,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
                 .set("font-style", "italic");
         emptyUpcomingNotice.setVisible(false);
 
-        section.add(header, upcomingGrid, emptyUpcomingNotice);
+        section.add(header, swipeHint, gridWrapper, emptyUpcomingNotice);
         return section;
     }
 
