@@ -63,6 +63,6 @@ public class ConfirmDeleteDialog extends Dialog {
 
         getFooter().add(cancelBtn, deleteBtn);
         setModal(true);
-        setWidth("460px");
+        setWidth("min(460px, 92vw)");
     }
 }

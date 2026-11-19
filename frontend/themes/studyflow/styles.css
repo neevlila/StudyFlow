@@ -62,7 +62,8 @@ vaadin-app-layout::part(drawer) {
     border: 1px solid var(--sf-border);
     border-radius: var(--sf-radius);
     padding: 1.25rem 1.5rem;
-    min-width: 220px;
+    min-width: 0;
+    box-sizing: border-box;
     position: relative;
     overflow: hidden;
 }
@@ -241,3 +242,129 @@ vaadin-grid::part(row):hover {
     border-radius: 9999px;
     transition: width 0.4s ease;
 }
+
+/* ========================================================
+   Mobile & Responsive Layout Enhancements
+   ======================================================== */
+
+/* Grid container for stat cards */
+.sf-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Banner responsiveness */
+.sf-welcome-banner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Responsive Table & Grid */
+vaadin-grid {
+    -webkit-overflow-scrolling: touch;
+    width: 100% !important;
+}
+
+/* Tablet Layout (<= 1024px) */
+@media (max-width: 1024px) {
+    .sf-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+/* Mobile Screens (<= 768px) */
+@media (max-width: 768px) {
+    .sf-stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
+    }
+
+    .sf-welcome-banner {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1rem 1.25rem !important;
+    }
+
+    .sf-welcome-banner .sf-banner-actions {
+        width: 100% !important;
+    }
+
+    .sf-welcome-banner .sf-banner-actions > * {
+        width: 100% !important;
+    }
+
+    .sf-toolbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 0.85rem !important;
+        gap: 0.65rem !important;
+    }
+
+    .sf-toolbar > * {
+        width: 100% !important;
+        min-width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    .sf-toolbar .sf-search-field,
+    .sf-toolbar .sf-filter-select,
+    .sf-toolbar .sf-toolbar-add-btn {
+        width: 100% !important;
+    }
+
+    .sf-header-date {
+        display: none !important;
+    }
+
+    .sf-view-title {
+        font-size: 1.05rem !important;
+        max-width: 140px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sf-header-new-task-btn {
+        font-size: 0.8rem !important;
+        padding: 0 0.75rem !important;
+        height: 36px !important;
+    }
+
+    .sf-card {
+        padding: 1rem !important;
+    }
+
+    .sf-stat-value {
+        font-size: 1.85rem !important;
+    }
+
+    .sf-completed-badge {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+        margin-left: 0 !important;
+    }
+}
+
+/* Small Handheld Screens (<= 480px) */
+@media (max-width: 480px) {
+    vaadin-dialog-overlay::part(overlay) {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin: auto !important;
+        padding: 0.75rem !important;
+    }
+
+    vaadin-grid::part(header-cell),
+    vaadin-grid::part(body-cell) {
+        padding: 0.5rem !important;
+        font-size: 0.8rem !important;
+    }
+}
+

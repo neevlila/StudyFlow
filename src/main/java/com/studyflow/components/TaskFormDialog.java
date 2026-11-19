@@ -73,7 +73,7 @@ public class TaskFormDialog extends Dialog {
 
         getFooter().add(cancelBtn, saveBtn);
 
-        setWidth("560px");
+        setWidth("min(560px, 92vw)");
         setModal(true);
     }
 

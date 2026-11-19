@@ -77,6 +77,7 @@ public class MainLayout extends AppLayout {
         DrawerToggle toggle = new DrawerToggle();
         toggle.setAriaLabel("Toggle Menu");
 
+        viewTitle.addClassName("sf-view-title");
         viewTitle.getStyle()
                 .set("font-size", "1.25rem")
                 .set("font-weight", "600")
@@ -86,6 +87,7 @@ public class MainLayout extends AppLayout {
         // Format today's date
         String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d, yyyy"));
         Span dateSpan = new Span(formattedDate);
+        dateSpan.addClassName("sf-header-date");
         dateSpan.getStyle()
                 .set("color", "#94A3B8")
                 .set("font-size", "0.875rem")
@@ -101,6 +103,7 @@ public class MainLayout extends AppLayout {
             });
             dialog.open();
         });
+        newTaskBtn.addClassName("sf-header-new-task-btn");
         newTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         newTaskBtn.getStyle()
                 .set("background", "#6366F1")
@@ -109,6 +112,7 @@ public class MainLayout extends AppLayout {
                 .set("cursor", "pointer");
 
         HorizontalLayout header = new HorizontalLayout(toggle, viewTitle, dateSpan, newTaskBtn);
+        header.addClassName("sf-header-layout");
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.setWidthFull();
         header.addClassNames(

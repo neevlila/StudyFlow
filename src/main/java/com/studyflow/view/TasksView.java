@@ -77,6 +77,7 @@ public class TasksView extends VerticalLayout implements Refreshable {
     private HorizontalLayout createToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.setWidthFull();
+        toolbar.addClassName("sf-toolbar");
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.setSpacing(true);
         toolbar.getStyle()
@@ -86,26 +87,26 @@ public class TasksView extends VerticalLayout implements Refreshable {
                 .set("border", "1px solid #334155");
 
         // Search Field
+        searchField.addClassName("sf-search-field");
         searchField.setPlaceholder("Search assignments or subjects...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
-        searchField.setWidth("280px");
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.setValueChangeTimeout(250);
         searchField.addValueChangeListener(e -> applyFilters());
 
         // Status Filter
+        statusFilter.addClassName("sf-filter-select");
         statusFilter.setPlaceholder("Status");
         statusFilter.setItems("All Statuses", "Pending", "Completed");
         statusFilter.setValue("All Statuses");
-        statusFilter.setWidth("150px");
         statusFilter.addValueChangeListener(e -> applyFilters());
 
         // Priority Filter
+        priorityFilter.addClassName("sf-filter-select");
         priorityFilter.setPlaceholder("Priority");
         priorityFilter.setItems("All Priorities", "High", "Medium", "Low");
         priorityFilter.setValue("All Priorities");
-        priorityFilter.setWidth("150px");
         priorityFilter.addValueChangeListener(e -> applyFilters());
 
         // Reset Filter Button
@@ -118,6 +119,7 @@ public class TasksView extends VerticalLayout implements Refreshable {
             TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
             dialog.open();
         });
+        addTaskBtn.addClassName("sf-toolbar-add-btn");
         addTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addTaskBtn.getStyle()
                 .set("background", "#6366F1")

@@ -44,11 +44,11 @@ import '@vaadin/vaadin-lumo-styles/vaadin-iconset.js';
 
 const loadOnDemand = (key) => {
   const pending = [];
-  if (key === '3a07aaa02aecf8b190151b96a29f016884ef122ecda90b4528139c6cf3062af7') {
-    pending.push(import('./chunks/chunk-b091822bb476179d5e791c9c336d3ff75c8f99afa3c4a43f5f6b12d7886ac4db.js'));
-  }
   if (key === 'ae2e733071eb25b23ba24255f69666e1ff48567050933d9efd433602a6051173') {
     pending.push(import('./chunks/chunk-824d12bd0f53c0d65522cc4ee24cd14364ded1fc5953b356256d99e61d9c0ac1.js'));
+  }
+  if (key === '3a07aaa02aecf8b190151b96a29f016884ef122ecda90b4528139c6cf3062af7') {
+    pending.push(import('./chunks/chunk-b091822bb476179d5e791c9c336d3ff75c8f99afa3c4a43f5f6b12d7886ac4db.js'));
   }
   return Promise.all(pending);
 }

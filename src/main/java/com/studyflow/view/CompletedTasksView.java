@@ -65,6 +65,7 @@ public class CompletedTasksView extends VerticalLayout implements Refreshable {
     private HorizontalLayout createToolbar() {
         HorizontalLayout toolbar = new HorizontalLayout();
         toolbar.setWidthFull();
+        toolbar.addClassName("sf-toolbar");
         toolbar.setAlignItems(FlexComponent.Alignment.CENTER);
         toolbar.getStyle()
                 .set("background", "#1E293B")
@@ -72,13 +73,14 @@ public class CompletedTasksView extends VerticalLayout implements Refreshable {
                 .set("border-radius", "12px")
                 .set("border", "1px solid #334155");
 
+        searchField.addClassName("sf-search-field");
         searchField.setPlaceholder("Search completed assignments...");
         searchField.setPrefixComponent(VaadinIcon.SEARCH.create());
         searchField.setClearButtonVisible(true);
-        searchField.setWidth("320px");
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
         searchField.addValueChangeListener(e -> loadData());
 
+        totalCompletedBadge.addClassName("sf-completed-badge");
         totalCompletedBadge.getStyle()
                 .set("background", "rgba(16, 185, 129, 0.15)")
                 .set("color", "#34D399")

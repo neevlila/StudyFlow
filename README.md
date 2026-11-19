@@ -62,9 +62,12 @@ Students frequently juggle diverse deadlines written across disparate notebooks 
   - **Safe Deletion**: Confirmation dialog preventing accidental data removal.
 - **Completed Archive**:
   - Dedicated view showing completed tasks with strike-through styling, restore capability, and permanent deletion.
+- **Mobile & Tablet Responsive**:
+  - Adaptive CSS Grid for stat cards (4 columns desktop, 2 columns tablet, 1 column mobile).
+  - Responsive toolbars with automatic wrapping for filters and search fields.
+  - Touch-friendly action buttons and adaptive modal dialogs.
 - **Sample Data Seeding**:
-  - Automatically loads realistic college assignments (DAA, Java, DBMS, Networks) on first launch without creating duplicates on subsequent restarts.
-  - "Reset Sample Data" button on the dashboard for quick live examiner demonstrations.
+  - Automatically loads realistic college assignments (DAA, Java, DBMS, Networks) on first launch directly into the user's browser LocalStorage without creating duplicates on subsequent visits.
 
 ---
 

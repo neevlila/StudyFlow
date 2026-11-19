@@ -81,6 +81,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
     private Component createWelcomeBanner() {
         HorizontalLayout banner = new HorizontalLayout();
         banner.setWidthFull();
+        banner.addClassName("sf-welcome-banner");
         banner.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
         banner.setAlignItems(FlexComponent.Alignment.CENTER);
         banner.getStyle()
@@ -110,6 +111,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         textLayout.add(greeting, sub);
 
         HorizontalLayout actions = new HorizontalLayout();
+        actions.addClassName("sf-banner-actions");
         Button addTaskBtn = new Button("Add Assignment", VaadinIcon.PLUS.create(), e -> {
             TaskFormDialog dialog = new TaskFormDialog(taskService, null, t -> refresh());
             dialog.open();
@@ -117,34 +119,24 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         addTaskBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addTaskBtn.getStyle().set("background", "#6366F1");
 
-        Button resetDataBtn = new Button("Reset Sample Data", VaadinIcon.REFRESH.create(), e -> {
-            taskService.resetToSampleData();
-            refresh();
-            Notification n = Notification.show("Sample data restored and saved to browser LocalStorage!", 2500, Notification.Position.TOP_CENTER);
-            n.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        });
-        resetDataBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        resetDataBtn.getStyle().set("color", "#94A3B8");
-
-        actions.add(resetDataBtn, addTaskBtn);
+        actions.add(addTaskBtn);
 
         banner.add(textLayout, actions);
         return banner;
     }
 
     private Component createStatCardsLayout() {
-        HorizontalLayout statsRow = new HorizontalLayout();
-        statsRow.setWidthFull();
-        statsRow.setSpacing(true);
+        Div statsGrid = new Div();
+        statsGrid.addClassName("sf-stats-grid");
 
-        statsRow.add(
+        statsGrid.add(
                 buildStatCard("Total Tasks", totalVal, "All registered coursework", "total", VaadinIcon.TASKS, "#6366F1"),
                 buildStatCard("Pending", pendingVal, "Active study workload", "pending", VaadinIcon.HOURGLASS_START, "#F59E0B"),
                 buildStatCard("Completed", completedVal, "Submitted & verified", "completed", VaadinIcon.CHECK_CIRCLE, "#10B981"),
                 buildStatCard("Overdue", overdueVal, "Requires immediate attention", "overdue", VaadinIcon.EXCLAMATION_CIRCLE, "#EF4444")
         );
 
-        return statsRow;
+        return statsGrid;
     }
 
     private Component buildStatCard(String label, Span valueSpan, String subtext, String cssClass, VaadinIcon icon, String color) {
