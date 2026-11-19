@@ -62,7 +62,7 @@ public class DashboardView extends VerticalLayout implements Refreshable {
         setSpacing(false);
         getStyle()
                 .set("background-color", "#0B1120")
-                .set("padding", "0.65rem clamp(1rem, 2vw, 2rem) 2rem")
+                .set("padding", "1.15rem clamp(1rem, 2vw, 2rem) 2rem")
                 .set("gap", "1rem")
                 .set("box-sizing", "border-box");
 
