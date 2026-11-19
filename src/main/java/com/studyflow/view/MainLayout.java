@@ -57,14 +57,17 @@ public class MainLayout extends AppLayout {
             attachEvent.getUI().getPage().executeJs(
                     "return window.localStorage.getItem('studyflow_tasks') || '';"
             ).then(String.class, json -> {
-                if (json != null && !json.trim().isEmpty() && !json.trim().equals("[]")) {
-                    taskService.loadSessionTasksFromJson(json);
-                } else {
-                    // First-time visit: seed initial sample tasks and save to browser LocalStorage
-                    String initialJson = taskService.exportSessionTasksToJson();
+                // Remove only the exact demo assignments created by older versions.
+                // Any tasks created by the user are preserved.
+                String cleanedJson = taskService.removeLegacySampleTasks(json);
+                if (!cleanedJson.equals(json)) {
                     attachEvent.getUI().getPage().executeJs(
-                            "window.localStorage.setItem('studyflow_tasks', $0);", initialJson
+                            "window.localStorage.setItem('studyflow_tasks', $0);", cleanedJson
                     );
+                }
+
+                if (cleanedJson != null && !cleanedJson.trim().isEmpty() && !cleanedJson.trim().equals("[]")) {
+                    taskService.loadSessionTasksFromJson(cleanedJson);
                 }
                 taskService.setSessionLoaded(true);
                 updateNavBadges();
